@@ -41,14 +41,32 @@
         android:layout_marginStart="161dp"
         android:layout_marginTop="20dp"
         android:layout_marginEnd="162dp"
-        android:layout_marginBottom="531dp"
+        android:layout_marginBottom="21dp"
         android:text="ToggleButton"
         android:textOff="Record"
         android:textOn="Stop"
-        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintBottom_toTopOf="@+id/localeButton"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/progressBar" />
+
+    <ToggleButton
+        android:id="@+id/localeButton"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentTop="true"
+        android:layout_centerHorizontal="true"
+        android:layout_marginStart="161dp"
+        android:layout_marginTop="15dp"
+        android:layout_marginEnd="162dp"
+        android:layout_marginBottom="82dp"
+        android:text="ToggleButton"
+        android:textOff="English"
+        android:textOn="Dansk"
+        app:layout_constraintBottom_toTopOf="@+id/textView"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/toggleButton" />
 
     <Button
         android:id="@+id/copyButton"

@@ -13,10 +13,13 @@ import android.util.Log
 import android.view.View
 import android.widget.*
 import androidx.core.app.ActivityCompat
+import java.util.*
 
 class SpeechToTextActivity : AppCompatActivity(), RecognitionListener {
 
     private lateinit var copyButton : Button
+    private lateinit var localeButton : ToggleButton
+    private var locale = "US-en"
     private val permission = 100
     private lateinit var returnedText: TextView
     private lateinit var toggleButton: ToggleButton
@@ -29,6 +32,9 @@ class SpeechToTextActivity : AppCompatActivity(), RecognitionListener {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_speech_to_text)
 
+        Locale.setDefault(Locale.GERMANY)
+
+        localeButton = findViewById(R.id.localeButton)
         copyButton = findViewById(R.id.copyButton)
         returnedText = findViewById(R.id.textView)
         progressBar = findViewById(R.id.progressBar)
@@ -39,6 +45,7 @@ class SpeechToTextActivity : AppCompatActivity(), RecognitionListener {
         speech.setRecognitionListener(this)
         recognizerIntent = Intent(RecognizerIntent.ACTION_RECOGNIZE_SPEECH)
         recognizerIntent.putExtra(RecognizerIntent.EXTRA_LANGUAGE_PREFERENCE, "US-en")
+        recognizerIntent.putExtra(RecognizerIntent.EXTRA_LANGUAGE, locale)
         recognizerIntent.putExtra(RecognizerIntent.EXTRA_LANGUAGE_MODEL,
             RecognizerIntent.LANGUAGE_MODEL_FREE_FORM)
         recognizerIntent.putExtra(RecognizerIntent.EXTRA_MAX_RESULTS, 3)
@@ -53,6 +60,17 @@ class SpeechToTextActivity : AppCompatActivity(), RecognitionListener {
                 progressBar.isIndeterminate = false
                 progressBar.visibility = View.VISIBLE
                 speech.stopListening()
+            }
+        }
+
+        localeButton.setOnCheckedChangeListener { _, isChecked ->
+            if (isChecked) {
+                locale = "DA-dk"
+                recognizerIntent.putExtra(RecognizerIntent.EXTRA_LANGUAGE, locale)
+            }
+            else {
+                locale = Locale.US.toString()
+                recognizerIntent.putExtra(RecognizerIntent.EXTRA_LANGUAGE, locale)
             }
         }
 
@@ -151,6 +169,6 @@ class SpeechToTextActivity : AppCompatActivity(), RecognitionListener {
         }
         returnedText.text = text
 
-        Log.d("test", text)
+        Log.i(logTag, text)
     }
 }
