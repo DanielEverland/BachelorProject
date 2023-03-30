@@ -19,7 +19,7 @@ class SpeechToTextActivity : AppCompatActivity(), RecognitionListener {
 
     private lateinit var copyButton : Button
     private lateinit var localeButton : ToggleButton
-    private var locale = "US-en"
+    private var locale = Locale.US.toString()
     private val permission = 100
     private lateinit var returnedText: TextView
     private lateinit var toggleButton: ToggleButton
@@ -31,8 +31,6 @@ class SpeechToTextActivity : AppCompatActivity(), RecognitionListener {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_speech_to_text)
-
-        Locale.setDefault(Locale.GERMANY)
 
         localeButton = findViewById(R.id.localeButton)
         copyButton = findViewById(R.id.copyButton)
