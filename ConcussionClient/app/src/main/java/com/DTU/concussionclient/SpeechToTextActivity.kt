@@ -1,5 +1,7 @@
 package com.DTU.concussionclient
 
+import android.content.ClipData
+import android.content.ClipboardManager
 import android.content.Intent
 import android.content.pm.PackageManager
 import androidx.appcompat.app.AppCompatActivity
@@ -14,6 +16,7 @@ import androidx.core.app.ActivityCompat
 
 class SpeechToTextActivity : AppCompatActivity(), RecognitionListener {
 
+    private lateinit var copyButton : Button
     private val permission = 100
     private lateinit var returnedText: TextView
     private lateinit var toggleButton: ToggleButton
@@ -26,6 +29,7 @@ class SpeechToTextActivity : AppCompatActivity(), RecognitionListener {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_speech_to_text)
 
+        copyButton = findViewById(R.id.copyButton)
         returnedText = findViewById(R.id.textView)
         progressBar = findViewById(R.id.progressBar)
         toggleButton = findViewById(R.id.toggleButton)
@@ -50,6 +54,15 @@ class SpeechToTextActivity : AppCompatActivity(), RecognitionListener {
                 progressBar.visibility = View.VISIBLE
                 speech.stopListening()
             }
+        }
+
+        var clipboard = getSystemService(CLIPBOARD_SERVICE) as ClipboardManager
+
+        copyButton.setOnClickListener {
+            var clipData = ClipData.newPlainText("Speech2Text", returnedText.text)
+            clipboard.setPrimaryClip(clipData)
+            Toast.makeText(this@SpeechToTextActivity, "Copied to clipboard",
+                Toast.LENGTH_SHORT).show()
         }
     }
 
