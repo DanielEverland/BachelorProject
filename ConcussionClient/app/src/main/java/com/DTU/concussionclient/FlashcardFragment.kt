@@ -1,5 +1,7 @@
 package com.DTU.concussionclient
 
+import android.app.Activity
+import android.content.Context
 import android.os.Bundle
 import android.util.Log
 import androidx.fragment.app.Fragment
@@ -61,7 +63,7 @@ class FlashcardFragment : Fragment() {
                 row.addView(newView)
 
                 if(j != numbers)
-                    addSpace(row, (1..5).random().toFloat())
+                    addLine(row, (1..5).random().toFloat())
             }
 
             if(i != rows)
@@ -81,6 +83,14 @@ class FlashcardFragment : Fragment() {
         val newSpace = Space(activity)
         parentLayout.addView(newSpace)
         (newSpace.layoutParams as LayoutParams).weight = Weight
+    }
+
+    private fun addLine(parentLayout: ViewGroup, Weight: Float)
+    {
+        val newLine = Line(activity as Context)
+        parentLayout.addView(newLine)
+        (newLine.layoutParams as LayoutParams).weight = Weight
+        (newLine.layoutParams as LayoutParams).height = 50
     }
 
     companion object {
