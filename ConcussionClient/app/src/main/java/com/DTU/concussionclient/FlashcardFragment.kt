@@ -63,7 +63,10 @@ class FlashcardFragment : Fragment() {
                 row.addView(newView)
 
                 if(j != numbers)
-                    addLine(row, (1..5).random().toFloat())
+                {
+                    val line = addLine(row, (1..5).random().toFloat())
+                    line.showArrow = j == 1
+                }
             }
 
             if(i != rows)
@@ -85,12 +88,14 @@ class FlashcardFragment : Fragment() {
         (newSpace.layoutParams as LayoutParams).weight = Weight
     }
 
-    private fun addLine(parentLayout: ViewGroup, Weight: Float)
+    private fun addLine(parentLayout: ViewGroup, Weight: Float) : Line
     {
         val newLine = Line(activity as Context)
         parentLayout.addView(newLine)
         (newLine.layoutParams as LayoutParams).weight = Weight
         (newLine.layoutParams as LayoutParams).height = 50
+
+        return newLine
     }
 
     companion object {

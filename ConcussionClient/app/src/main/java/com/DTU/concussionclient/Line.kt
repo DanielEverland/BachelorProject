@@ -29,7 +29,16 @@ class Line : View {
         init(attrs, defStyle)
     }
 
+    public var showArrow = false
+
     private val linePaint = Paint()
+    private val margin = 20.0f
+    private val arrowOffset = 20.0f
+    private val arrowWidth = 20.0f
+    private val arrowHeight = 30.0f
+    private val arrowHalfHeight = arrowHeight / 2.0f
+
+    private var midHeight = 0.0f
 
     private fun init(attrs: AttributeSet?, defStyle: Int) {
         linePaint.strokeWidth = 4.0f
@@ -39,9 +48,25 @@ class Line : View {
     override fun onDraw(canvas: Canvas) {
         super.onDraw(canvas)
 
-        val margin = 20.0f
-        val midHeight = height / 2.0f
+        midHeight = height / 2.0f
         canvas.drawLine(margin, midHeight, width.toFloat() - margin, midHeight, linePaint)
+
+        if(showArrow)
+            drawArrow(canvas)
+    }
+
+    val colors = intArrayOf(
+        Color.WHITE,
+        Color.WHITE,
+        Color.WHITE,
+        -0x1000000, -0x1000000, -0x1000000
+    )
+
+    fun drawArrow(canvas: Canvas) {
+        val arrowStartX = margin + arrowOffset
+
+        canvas.drawLine(arrowStartX, midHeight - arrowHalfHeight, arrowStartX + arrowWidth, midHeight, linePaint)
+        canvas.drawLine(arrowStartX, midHeight + arrowHalfHeight, arrowStartX + arrowWidth, midHeight, linePaint)
     }
 
     // Modified from https://www.geeksforgeeks.org/what-is-onmeasure-custom-view-in-android/
