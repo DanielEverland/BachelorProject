@@ -1,5 +1,6 @@
 package com.DTU.concussionclient
 
+import android.content.Intent
 import android.os.Bundle
 import android.util.Log
 import androidx.fragment.app.Fragment
@@ -50,7 +51,7 @@ class FrontPageTestButtonFragment : Fragment() {
         }
 
         root.findViewById<ImageButton>(R.id.testButtonFragmentButton).setOnClickListener {
-
+            startActivity(Intent(activity, TestActivity::class.java))
         }
 
         return root
