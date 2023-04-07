@@ -1,20 +1,16 @@
 package com.DTU.concussionclient
 
-import android.app.Activity
 import android.content.Context
 import android.os.Bundle
-import android.util.Log
 import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.FrameLayout
 import android.widget.LinearLayout
 import android.widget.LinearLayout.LayoutParams
+import android.widget.LinearLayout.TEXT_ALIGNMENT_CENTER
 import android.widget.Space
 import android.widget.TextView
-import androidx.core.view.marginRight
-import java.util.*
 
 // TODO: Rename parameter arguments, choose names that match
 // the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
@@ -50,30 +46,47 @@ class FlashcardFragment : Fragment() {
         val rows = 5
         val numbers = 5
 
-        for(i in 1..rows)
-        {
+        addSpace(layout, 0.25f)
+        createNumberRows(rows, layout, numbers)
+        addSpace(layout, 0.25f)
+        createFooterText(layout)
+        addSpace(layout, 0.15f)
+
+        return root
+    }
+
+    private fun createNumberRows(
+        rows: Int,
+        layout: LinearLayout,
+        numbers: Int
+    ) {
+        for (i in 1..rows) {
             val row = LinearLayout(activity)
             row.orientation = LinearLayout.HORIZONTAL
             layout.addView(row)
 
-            for (j in 1 .. numbers)
-            {
+            for (j in 1..numbers) {
                 val newView = TextView(activity)
                 newView.text = (1..9).random().toString()
                 row.addView(newView)
 
-                if(j != numbers)
-                {
+                if (j != numbers) {
                     val line = addLine(row, (1..5).random().toFloat())
                     line.showArrow = j == 1
                 }
             }
 
-            if(i != rows)
+            if (i != rows)
                 addFillingSpace(layout)
         }
+    }
 
-        return root
+    private fun createFooterText(layout: LinearLayout) {
+        val textView = TextView(activity)
+        textView.text = "Demonstration Card (1/4)"
+        textView.textAlignment = TEXT_ALIGNMENT_CENTER
+        layout.addView(textView)
+        (textView.layoutParams as LayoutParams).height = 50
     }
 
     private fun addFillingSpace(parentLayout: ViewGroup)
