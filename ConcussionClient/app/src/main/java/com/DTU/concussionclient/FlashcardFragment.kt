@@ -14,8 +14,15 @@ import android.widget.TextView
 
 // TODO: Rename parameter arguments, choose names that match
 // the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
-private const val ARG_PARAM1 = "param1"
-private const val ARG_PARAM2 = "param2"
+private const val ARG_PARAM1 = "Index"
+
+class FlashcardConfiguration(lineConfiguration: LineConfiguration, val name: String, val rows: Int,
+    val headerWeight: Float, val footerWeight: Float) {
+    class LineConfiguration(val showLines: Boolean, val showArrows: Boolean, val showDiagonal: Boolean) {
+    }
+
+    val line = lineConfiguration
+}
 
 /**
  * A simple [Fragment] subclass.
@@ -23,15 +30,34 @@ private const val ARG_PARAM2 = "param2"
  * create an instance of this fragment.
  */
 class FlashcardFragment : Fragment() {
-    // TODO: Rename and change types of parameters
-    private var param1: String? = null
-    private var param2: String? = null
+    private var configuration: FlashcardConfiguration? = null
+
+    private val allConfigs = arrayOf(
+        FlashcardConfiguration(
+            FlashcardConfiguration.LineConfiguration(showLines = true, showArrows = true, showDiagonal = true),
+            "Demonstration Card (1/4)",
+            5, 0.25f, 0.25f),
+
+        FlashcardConfiguration(
+            FlashcardConfiguration.LineConfiguration(showLines = true, showArrows = false, showDiagonal = false),
+            "Test I (2/4)",
+            8, 0.25f, 0.25f),
+
+        FlashcardConfiguration(
+            FlashcardConfiguration.LineConfiguration(showLines = false, showArrows = false, showDiagonal = false),
+            "Test II (3/4)",
+            8, 0.25f, 0.25f),
+
+        FlashcardConfiguration(
+            FlashcardConfiguration.LineConfiguration(showLines = false, showArrows = false, showDiagonal = false),
+            "Test III (4/4)",
+            8, 6.0f, 15.0f)
+    )
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         arguments?.let {
-            param1 = it.getString(ARG_PARAM1)
-            param2 = it.getString(ARG_PARAM2)
+            configuration = allConfigs[it.getInt(ARG_PARAM1)]
         }
     }
 
@@ -44,12 +70,12 @@ class FlashcardFragment : Fragment() {
         val layout = root as LinearLayout
         layout.clipChildren = false
 
-        val rows = 5
+        val rows = configuration!!.rows
         val numbers = 5
 
-        addSpace(layout, 0.25f)
+        addSpace(layout, configuration!!.headerWeight)
         createNumberRows(rows, layout, numbers)
-        addSpace(layout, 0.25f)
+        addSpace(layout, configuration!!.footerWeight)
         createFooterText(layout)
         addSpace(layout, 0.15f)
 
@@ -73,8 +99,16 @@ class FlashcardFragment : Fragment() {
                 row.addView(newView)
 
                 if (j != numbers) {
-                    val line = addLine(row, (1..5).random().toFloat())
-                    line.showArrow = j == 1
+                    val weight = (1 .. 5).random().toFloat()
+                    if(configuration!!.line.showLines)
+                    {
+                        val line = addLine(row, weight)
+                        line.showArrow = j == 1 && configuration!!.line.showArrows
+                    }
+                    else
+                    {
+                        addSpace(row, weight)
+                    }
                 }
             }
 
@@ -85,7 +119,7 @@ class FlashcardFragment : Fragment() {
 
     private fun createFooterText(layout: LinearLayout) {
         val textView = TextView(activity)
-        textView.text = "Demonstration Card (1/4)"
+        textView.text = configuration!!.name
         textView.textAlignment = TEXT_ALIGNMENT_CENTER
         layout.addView(textView)
         (textView.layoutParams as LayoutParams).height = 50
@@ -93,8 +127,8 @@ class FlashcardFragment : Fragment() {
 
     private fun addFillingSpace(parentLayout: ViewGroup)
     {
-        //addSpace(parentLayout, 1.0f)
-        addDiagonalLine(parentLayout, 1.0f)
+        if (configuration!!.line.showDiagonal) addDiagonalLine(parentLayout, 1.0f)
+        else addSpace(parentLayout, 1.0f)
     }
 
     private fun addSpace(parentLayout: ViewGroup, Weight: Float)
@@ -137,16 +171,14 @@ class FlashcardFragment : Fragment() {
          * this fragment using the provided parameters.
          *
          * @param param1 Parameter 1.
-         * @param param2 Parameter 2.
          * @return A new instance of fragment FlashcardFragment.
          */
         // TODO: Rename and change types and number of parameters
         @JvmStatic
-        fun newInstance(param1: String, param2: String) =
+        fun newInstance(param1: Int) =
             FlashcardFragment().apply {
                 arguments = Bundle().apply {
-                    putString(ARG_PARAM1, param1)
-                    putString(ARG_PARAM2, param2)
+                    putInt(ARG_PARAM1, param1)
                 }
             }
     }

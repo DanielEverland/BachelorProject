@@ -51,7 +51,9 @@ class FrontPageTestButtonFragment : Fragment() {
         }
 
         root.findViewById<ImageButton>(R.id.testButtonFragmentButton).setOnClickListener {
-            startActivity(Intent(activity, TestActivity::class.java))
+            val newIntent = Intent(activity, TestActivity::class.java)
+            newIntent.putExtra("FlashcardIndex", 0)
+            startActivity(newIntent)
         }
 
         return root
