@@ -10,7 +10,7 @@ class TestActivity : AppCompatActivity() {
         setContentView(R.layout.activity_test)
 
         // Disable changing orientation
-        requestedOrientation = ActivityInfo.SCREEN_ORIENTATION_SENSOR_LANDSCAPE
+        requestedOrientation = ActivityInfo.SCREEN_ORIENTATION_REVERSE_LANDSCAPE
 
         // Hides the title bar
         supportActionBar?.hide()

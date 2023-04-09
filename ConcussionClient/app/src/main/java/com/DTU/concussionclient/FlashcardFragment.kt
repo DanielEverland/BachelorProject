@@ -42,6 +42,7 @@ class FlashcardFragment : Fragment() {
         // Inflate the layout for this fragment
         val root = inflater.inflate(R.layout.fragment_flashcard, container, false)
         val layout = root as LinearLayout
+        layout.clipChildren = false
 
         val rows = 5
         val numbers = 5
@@ -63,6 +64,7 @@ class FlashcardFragment : Fragment() {
         for (i in 1..rows) {
             val row = LinearLayout(activity)
             row.orientation = LinearLayout.HORIZONTAL
+            row.clipChildren = false
             layout.addView(row)
 
             for (j in 1..numbers) {
@@ -91,7 +93,8 @@ class FlashcardFragment : Fragment() {
 
     private fun addFillingSpace(parentLayout: ViewGroup)
     {
-        addSpace(parentLayout, 1.0f)
+        //addSpace(parentLayout, 1.0f)
+        addDiagonalLine(parentLayout, 1.0f)
     }
 
     private fun addSpace(parentLayout: ViewGroup, Weight: Float)
@@ -101,12 +104,29 @@ class FlashcardFragment : Fragment() {
         (newSpace.layoutParams as LayoutParams).weight = Weight
     }
 
+    private fun addDiagonalLine(parentLayout: ViewGroup, Weight: Float)
+    {
+        val newLine = Line(activity as Context)
+        parentLayout.addView(newLine)
+        (newLine.layoutParams as LayoutParams).weight = Weight
+
+        newLine.startXOffset = 20.0f
+        newLine.startYOffset = 90.0f
+        newLine.endXOffset = -20.0f
+        newLine.endYOffset = -90.0f
+        newLine.showArrow = true
+        newLine.reverseArrowDirection = true
+        newLine.arrowOffset = 120.0f
+    }
+
     private fun addLine(parentLayout: ViewGroup, Weight: Float) : Line
     {
         val newLine = Line(activity as Context)
         parentLayout.addView(newLine)
         (newLine.layoutParams as LayoutParams).weight = Weight
         (newLine.layoutParams as LayoutParams).height = 50
+        (newLine.parent as ViewGroup).clipChildren = false
+        newLine.arrowOffset = 40.0f
 
         return newLine
     }
