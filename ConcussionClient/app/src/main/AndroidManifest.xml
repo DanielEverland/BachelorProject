@@ -12,6 +12,9 @@
         android:theme="@style/Theme.ConcussionClient"
         tools:targetApi="31">
         <activity
+            android:name=".SeeSoActivity"
+            android:exported="false" />
+        <activity
             android:name=".MainActivity"
             android:exported="true">
             <intent-filter>
