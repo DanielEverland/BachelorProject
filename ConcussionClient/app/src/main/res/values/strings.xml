@@ -2,4 +2,15 @@
     <string name="app_name">ConcussionClient</string>
     <!-- TODO: Remove or change this placeholder text -->
     <string name="hello_blank_fragment">Hello blank fragment</string>
+    <string name="dummy_button">Dummy Button</string>
+    <string name="dummy_content">DUMMY\nCONTENT</string>
+    <string name="demonstration_popup_text">
+        This is a demonstration card, and will not be scored.\n
+        \n
+        Once the test begins, read each number on the card\n
+        from left to right, top to bottom.\n
+        Read the numbers out loud, as fast as you can.\n
+        \n
+        Tap anywhere on the screen to begin the test
+    </string>
 </resources>

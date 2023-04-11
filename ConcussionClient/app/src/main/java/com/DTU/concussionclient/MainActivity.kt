@@ -1,9 +1,14 @@
 package com.DTU.concussionclient
 
+import android.content.Context
 import android.content.pm.ActivityInfo
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
+import android.util.AttributeSet
+import android.util.Log
+import android.view.View
 import androidx.fragment.app.Fragment
+import kotlin.math.log
 
 class MainActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
