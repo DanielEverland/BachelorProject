@@ -3,9 +3,13 @@ package com.DTU.concussionclient
 import android.Manifest
 import android.content.pm.PackageManager
 import android.os.Bundle
+import android.os.Handler
+import android.os.Looper
 import android.provider.Settings
 import android.util.Log
+import android.view.View
 import android.widget.ImageView
+import android.widget.ToggleButton
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.ContextCompat
 import camp.visual.gazetracker.GazeTracker
@@ -21,17 +25,94 @@ class SeeSoActivity : AppCompatActivity() {
     private val PERMISSIONS = arrayOf(Manifest.permission.CAMERA)
     private val REQ_PERMISSION = 1000
     private lateinit var gazeTracker: GazeTracker
+    private lateinit var gazeData : MutableMap<Long, Pair<Float, Float>>
+    private val handler = Handler(Looper.getMainLooper())
+    private var playProgress : Long = 0
 
+    private lateinit var toggleButtonRecord : ToggleButton
+    private lateinit var toggleButtonPlay : ToggleButton
     private lateinit var imageView : ImageView
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_see_so)
 
+        toggleButtonRecord = findViewById(R.id.toggleButtonRecord)
+        toggleButtonPlay = findViewById(R.id.toggleButtonPlay)
         imageView = findViewById(R.id.imageView)
+
+        enablePlay(false)
 
         checkPermission()
         initGaze()
+
+
+
+        toggleButtonRecord.setOnCheckedChangeListener { _, isChecked ->
+            if (isChecked) {
+                enablePlay(false)
+                gazeData = mutableMapOf()
+                gazeTracker.startTracking()
+            }
+            else {
+                gazeTracker.stopTracking()
+
+                // Modify timestamps to begin at 0
+                val firstTimeStamp = gazeData.keys.first()
+                gazeData = gazeData.mapKeys { it.key - firstTimeStamp} as MutableMap<Long, Pair<Float, Float>>
+
+                if (gazeData.isNotEmpty()) {
+                    enablePlay(true)
+                }
+
+                Log.i("SeeSo", "Map size: ${gazeData.size}")
+            }
+        }
+
+        toggleButtonPlay.setOnCheckedChangeListener { _, isChecked ->
+            if (isChecked) {
+                enableRecord(false)
+
+                imageView.visibility = View.VISIBLE
+
+                displayGazeData(0)
+            }
+            else {
+                imageView.visibility = View.INVISIBLE
+
+                enableRecord(true)
+            }
+        }
+
+    }
+
+    private fun enableRecord(bool : Boolean) {
+        toggleButtonRecord.isEnabled = bool
+        toggleButtonRecord.isClickable = bool
+    }
+
+    private fun enablePlay(bool : Boolean) {
+        toggleButtonPlay.isEnabled = bool
+        toggleButtonPlay.isClickable = bool
+    }
+
+    private fun displayGazeData(timestamp : Long) {
+        playProgress = timestamp
+
+        val coords = gazeData[timestamp]
+        if (coords != null) {
+            imageView.translationX = coords.first
+            imageView.translationY = coords.second
+        }
+
+        val next = gazeData.keys.firstOrNull { k -> k > playProgress }
+        if (next != null) {
+            val delay = next - playProgress
+            val runnable = Runnable {
+                displayGazeData(next)
+            }
+            handler.postDelayed(runnable, delay)
+        }
     }
 
     private fun checkPermission() {
@@ -109,7 +190,6 @@ class SeeSoActivity : AppCompatActivity() {
         val cp = CameraPosition("SM-S908B/DS", -37f, 3f)
         gazeTracker.addCameraPosition(cp)
         this.gazeTracker.setGazeCallback(gazeCallback)
-        this.gazeTracker.startTracking()
         Log.i("SeeSo", "Initialization success")
     }
 
@@ -120,8 +200,8 @@ class SeeSoActivity : AppCompatActivity() {
             val filteredValues = oneEuroFilterManager.filteredValues
             val filteredX = filteredValues[0]
             val filteredY = filteredValues[1]
-            imageView.translationX = filteredX
-            imageView.translationY = filteredY
+
+            gazeData[gazeInfo.timestamp] = Pair(filteredX, filteredY)
         }
     }
 
