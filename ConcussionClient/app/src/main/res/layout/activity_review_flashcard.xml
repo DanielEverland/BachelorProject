@@ -33,12 +33,54 @@
                     android:layout_weight="1"
                     tools:layout="@layout/fragment_flashcard" />
 
-                <FrameLayout
+                <LinearLayout
                     android:layout_width="match_parent"
                     android:layout_height="match_parent"
-                    android:layout_weight="4">
+                    android:layout_weight="4"
+                    android:orientation="horizontal">
 
-                </FrameLayout>
+                    <Space
+                        android:layout_width="25dp"
+                        android:layout_height="match_parent" />
+
+                    <ImageButton
+                        android:id="@+id/imageButton"
+                        android:layout_width="50dp"
+                        android:layout_height="50dp"
+                        android:layout_gravity="center_vertical"
+                        android:background="@drawable/play_button"
+                        android:contentDescription="play" />
+
+                    <Space
+                        android:layout_width="25dp"
+                        android:layout_height="match_parent" />
+
+                    <TextView
+                        android:id="@+id/textView"
+                        android:layout_width="33dp"
+                        android:layout_height="wrap_content"
+                        android:layout_gravity="center"
+                        android:text="0:05"
+                        android:textAlignment="textEnd" />
+
+                    <SeekBar
+                        android:id="@+id/seekBar"
+                        android:layout_width="match_parent"
+                        android:layout_height="match_parent"
+                        android:layout_weight="1" />
+
+                    <TextView
+                        android:id="@+id/textView2"
+                        android:layout_width="33dp"
+                        android:layout_height="wrap_content"
+                        android:layout_gravity="center"
+                        android:text="0:19" />
+
+                    <Space
+                        android:layout_width="100dp"
+                        android:layout_height="match_parent" />
+
+                </LinearLayout>
             </LinearLayout>
         </FrameLayout>
 
