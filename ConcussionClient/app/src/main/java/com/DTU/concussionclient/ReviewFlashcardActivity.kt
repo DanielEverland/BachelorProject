@@ -1,7 +1,9 @@
 package com.DTU.concussionclient
 
+import android.content.Intent
 import android.os.Bundle
 import android.util.Log
+import android.widget.Button
 import com.google.android.material.snackbar.Snackbar
 import androidx.appcompat.app.AppCompatActivity
 import androidx.fragment.app.Fragment
@@ -22,6 +24,12 @@ class ReviewFlashcardActivity : AppCompatActivity() {
 
         // Hides the title bar
         supportActionBar?.hide()
+
+        findViewById<Button>(R.id.debugNextTestButton).setOnClickListener {
+            val intent = Intent(this, TestActivity::class.java)
+            intent.putExtra("FlashcardIndex", getFlashcardIndex + 1)
+            startActivity(intent)
+        }
     }
 
     override fun onAttachFragment(fragment: Fragment) {
