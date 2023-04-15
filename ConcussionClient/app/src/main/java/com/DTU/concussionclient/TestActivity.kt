@@ -23,10 +23,21 @@ class TestActivity : AppCompatActivity() {
         supportActionBar?.hide()
 
         findViewById<Button>(R.id.debugNextFlashcardButton).setOnClickListener {
-            val newIntent = Intent(this, ReviewFlashcardActivity::class.java)
-            newIntent.putExtra("FlashcardIndex", getFlashcardIndex)
-            newIntent.putExtra("Seed", seed)
-            startActivity(newIntent)
+            var intent: Intent? = null
+
+            if(isDemonstrationCard)
+            {
+                intent = Intent(this, TestActivity::class.java)
+                intent.putExtra("FlashcardIndex", getFlashcardIndex + 1)
+            }
+            else
+            {
+                intent = Intent(this, ReviewFlashcardActivity::class.java)
+                intent.putExtra("FlashcardIndex", getFlashcardIndex)
+                intent.putExtra("Seed", seed)
+            }
+
+            startActivity(intent)
         }
 
         if (isDemonstrationCard)
