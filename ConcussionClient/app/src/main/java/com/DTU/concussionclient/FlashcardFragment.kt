@@ -2,6 +2,7 @@ package com.DTU.concussionclient
 
 import android.content.Context
 import android.os.Bundle
+import android.util.Log
 import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
@@ -11,10 +12,12 @@ import android.widget.LinearLayout.LayoutParams
 import android.widget.LinearLayout.TEXT_ALIGNMENT_CENTER
 import android.widget.Space
 import android.widget.TextView
+import kotlin.random.Random
 
 // TODO: Rename parameter arguments, choose names that match
 // the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
 private const val ARG_PARAM1 = "Index"
+private const val ARG_PARAM2 = "Seed"
 
 class FlashcardConfiguration(lineConfiguration: LineConfiguration, val name: String, val rows: Int,
     val headerWeight: Float, val footerWeight: Float) {
@@ -31,6 +34,8 @@ class FlashcardConfiguration(lineConfiguration: LineConfiguration, val name: Str
  */
 class FlashcardFragment : Fragment() {
     private var configuration: FlashcardConfiguration? = null
+    private var seed: Int? = null
+    private var randomGenerator: Random? = null
 
     private val allConfigs = arrayOf(
         FlashcardConfiguration(
@@ -58,6 +63,8 @@ class FlashcardFragment : Fragment() {
         super.onCreate(savedInstanceState)
         arguments?.let {
             configuration = allConfigs[it.getInt(ARG_PARAM1)]
+            seed = it.getInt(ARG_PARAM2)
+            randomGenerator = Random(seed!!)
         }
     }
 
@@ -95,11 +102,11 @@ class FlashcardFragment : Fragment() {
 
             for (j in 1..numbers) {
                 val newView = TextView(activity)
-                newView.text = (1..9).random().toString()
+                newView.text = randomGenerator!!.nextInt(1, 10).toString()
                 row.addView(newView)
 
                 if (j != numbers) {
-                    val weight = (1 .. 5).random().toFloat()
+                    val weight = randomGenerator!!.nextInt(1, 6).toFloat()
                     if(configuration!!.line.showLines)
                     {
                         val line = addLine(row, weight)
@@ -144,6 +151,7 @@ class FlashcardFragment : Fragment() {
         parentLayout.addView(newLine)
         (newLine.layoutParams as LayoutParams).weight = Weight
 
+        newLine.isDiagonal = true
         newLine.startXOffset = 20.0f
         newLine.startYOffset = 90.0f
         newLine.endXOffset = -20.0f
@@ -171,14 +179,16 @@ class FlashcardFragment : Fragment() {
          * this fragment using the provided parameters.
          *
          * @param param1 Parameter 1.
+         * @param param2 Seed for generating random values
          * @return A new instance of fragment FlashcardFragment.
          */
         // TODO: Rename and change types and number of parameters
         @JvmStatic
-        fun newInstance(param1: Int) =
+        fun newInstance(param1: Int, param2: Int) =
             FlashcardFragment().apply {
                 arguments = Bundle().apply {
                     putInt(ARG_PARAM1, param1)
+                    putInt(ARG_PARAM2, param2)
                 }
             }
     }

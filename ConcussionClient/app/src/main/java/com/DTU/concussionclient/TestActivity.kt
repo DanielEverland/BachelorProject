@@ -7,11 +7,13 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentTransaction
+import kotlin.random.Random
 
 class TestActivity : AppCompatActivity() {
 
     private val getFlashcardIndex get() = intent.extras!!.getInt("FlashcardIndex")
     private val isDemonstrationCard get() = getFlashcardIndex == 0
+    private val seed: Int = Random.nextInt();
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -21,8 +23,9 @@ class TestActivity : AppCompatActivity() {
         supportActionBar?.hide()
 
         findViewById<Button>(R.id.debugNextFlashcardButton).setOnClickListener {
-            val newIntent = Intent(this, TestActivity::class.java)
-            newIntent.putExtra("FlashcardIndex", getFlashcardIndex + 1)
+            val newIntent = Intent(this, ReviewFlashcardActivity::class.java)
+            newIntent.putExtra("FlashcardIndex", getFlashcardIndex)
+            newIntent.putExtra("Seed", seed)
             startActivity(newIntent)
         }
 
@@ -35,6 +38,7 @@ class TestActivity : AppCompatActivity() {
 
         val bundle = Bundle()
         bundle.putInt("Index", getFlashcardIndex)
+        bundle.putInt("Seed", seed)
         fragment.arguments = bundle
     }
 
