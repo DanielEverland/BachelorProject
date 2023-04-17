@@ -24,7 +24,7 @@
                 android:orientation="vertical">
 
                 <androidx.fragment.app.FragmentContainerView
-                    android:id="@+id/fragmentContainerView2"
+                    android:id="@+id/flashcardFragment"
                     android:name="com.DTU.concussionclient.FlashcardFragment"
                     android:layout_width="match_parent"
                     android:layout_height="match_parent"
@@ -117,7 +117,7 @@
                             app:layout_constraintTop_toTopOf="parent" />
 
                         <TextView
-                            android:id="@+id/textView5"
+                            android:id="@+id/expectedNumber"
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
                             android:gravity="bottom"
@@ -199,7 +199,7 @@
                     android:layout_height="30dp" />
 
                 <Button
-                    android:id="@+id/button"
+                    android:id="@+id/nextErrorButton"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_gravity="center"

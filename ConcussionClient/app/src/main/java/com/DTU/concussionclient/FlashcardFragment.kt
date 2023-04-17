@@ -3,7 +3,6 @@ package com.DTU.concussionclient
 import android.content.Context
 import android.os.Bundle
 import android.util.Log
-import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -12,6 +11,7 @@ import android.widget.LinearLayout.LayoutParams
 import android.widget.LinearLayout.TEXT_ALIGNMENT_CENTER
 import android.widget.Space
 import android.widget.TextView
+import androidx.fragment.app.Fragment
 import kotlin.random.Random
 
 // TODO: Rename parameter arguments, choose names that match
@@ -33,9 +33,19 @@ class FlashcardConfiguration(lineConfiguration: LineConfiguration, val name: Str
  * create an instance of this fragment.
  */
 class FlashcardFragment : Fragment() {
+    data class FlashcardNumberData(val index: Int, val value: Int) {
+    }
+
+    interface OnClickListener {
+        fun onClick(data: FlashcardNumberData)
+    }
+
     private var configuration: FlashcardConfiguration? = null
     private var seed: Int? = null
     private var randomGenerator: Random? = null
+    private var clickListener: OnClickListener? = null
+    private var numberData: MutableMap<Int, FlashcardNumberData> = mutableMapOf()
+    private var numberUILookup: MutableMap<View, Int> = mutableMapOf()
 
     private val allConfigs = arrayOf(
         FlashcardConfiguration(
@@ -58,6 +68,14 @@ class FlashcardFragment : Fragment() {
             "Test III (4/4)",
             8, 6.0f, 15.0f)
     )
+
+    fun getNumberData(index: Int) : FlashcardNumberData {
+        return numberData[index]!!
+    }
+
+    fun setOnClickListener(listener: OnClickListener) {
+        clickListener = listener
+    }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -94,6 +112,7 @@ class FlashcardFragment : Fragment() {
         layout: LinearLayout,
         numbers: Int
     ) {
+        var numberIndex = 0
         for (i in 1..rows) {
             val row = LinearLayout(activity)
             row.orientation = LinearLayout.HORIZONTAL
@@ -101,9 +120,7 @@ class FlashcardFragment : Fragment() {
             layout.addView(row)
 
             for (j in 1..numbers) {
-                val newView = TextView(activity)
-                newView.text = randomGenerator!!.nextInt(1, 10).toString()
-                row.addView(newView)
+                row.addView(createNewTextView(numberIndex++))
 
                 if (j != numbers) {
                     val weight = randomGenerator!!.nextInt(1, 6).toFloat()
@@ -122,6 +139,22 @@ class FlashcardFragment : Fragment() {
             if (i != rows)
                 addFillingSpace(layout)
         }
+    }
+
+    private fun createNewTextView(numberIndex: Int): TextView {
+        val newNumber = randomGenerator!!.nextInt(1, 10)
+
+        val newView = TextView(activity)
+        newView.text = newNumber.toString()
+        newView.setOnClickListener {
+            val data = numberData[numberUILookup[it]!!]!!
+            Log.i("FlashcardFragment", "Pressed Flashcard Number. Index: ${data.index}, Number: ${data.value}")
+            clickListener?.onClick(data)
+        }
+        numberData[numberIndex] = FlashcardNumberData(numberIndex, newNumber)
+        numberUILookup[newView] = numberIndex
+
+        return newView
     }
 
     private fun createFooterText(layout: LinearLayout) {
