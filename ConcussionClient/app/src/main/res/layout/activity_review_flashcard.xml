@@ -150,7 +150,7 @@
                             app:layout_constraintStart_toStartOf="parent">
 
                             <EditText
-                                android:id="@+id/editTextTextPersonName"
+                                android:id="@+id/actualNumber"
                                 android:layout_width="match_parent"
                                 android:layout_height="wrap_content"
                                 android:background="@null"

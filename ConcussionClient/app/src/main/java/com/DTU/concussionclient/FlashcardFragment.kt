@@ -33,19 +33,20 @@ class FlashcardConfiguration(lineConfiguration: LineConfiguration, val name: Str
  * create an instance of this fragment.
  */
 class FlashcardFragment : Fragment() {
-    data class FlashcardNumberData(val index: Int, val value: Int) {
-    }
-
     interface OnClickListener {
-        fun onClick(data: FlashcardNumberData)
+        fun onClick(data: ConcussionApplication.FlashcardNumberData)
     }
 
     private var configuration: FlashcardConfiguration? = null
     private var seed: Int? = null
     private var randomGenerator: Random? = null
     private var clickListener: OnClickListener? = null
-    private var numberData: MutableMap<Int, FlashcardNumberData> = mutableMapOf()
+    private val concussionApplication get() = (requireActivity().application!! as ConcussionApplication)
+    private val flashcardData get() = concussionApplication.getSession.getFlashcardData(flashcardIndex)
+    private val numberData get() = flashcardData.numbers
     private var numberUILookup: MutableMap<View, Int> = mutableMapOf()
+
+    private var flashcardIndex: Int = 0
 
     private val allConfigs = arrayOf(
         FlashcardConfiguration(
@@ -69,7 +70,7 @@ class FlashcardFragment : Fragment() {
             8, 6.0f, 15.0f)
     )
 
-    fun getNumberData(index: Int) : FlashcardNumberData {
+    fun getNumberData(index: Int) : ConcussionApplication.FlashcardNumberData {
         return numberData[index]!!
     }
 
@@ -80,7 +81,8 @@ class FlashcardFragment : Fragment() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         arguments?.let {
-            configuration = allConfigs[it.getInt(ARG_PARAM1)]
+            flashcardIndex = it.getInt(ARG_PARAM1)
+            configuration = allConfigs[flashcardIndex]
             seed = it.getInt(ARG_PARAM2)
             randomGenerator = Random(seed!!)
         }
@@ -148,10 +150,10 @@ class FlashcardFragment : Fragment() {
         newView.text = newNumber.toString()
         newView.setOnClickListener {
             val data = numberData[numberUILookup[it]!!]!!
-            Log.i("FlashcardFragment", "Pressed Flashcard Number. Index: ${data.index}, Number: ${data.value}")
+            Log.i("FlashcardFragment", "Pressed Flashcard Number. Index: ${data.index}, Number: ${data.expectedValue}")
             clickListener?.onClick(data)
         }
-        numberData[numberIndex] = FlashcardNumberData(numberIndex, newNumber)
+        numberData[numberIndex] = ConcussionApplication.FlashcardNumberData(numberIndex, newNumber, -1)
         numberUILookup[newView] = numberIndex
 
         return newView

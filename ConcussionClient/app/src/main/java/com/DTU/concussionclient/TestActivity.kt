@@ -14,6 +14,7 @@ class TestActivity : AppCompatActivity() {
     private val getFlashcardIndex get() = intent.extras!!.getInt("FlashcardIndex")
     private val isDemonstrationCard get() = getFlashcardIndex == 0
     private val seed: Int = Random.nextInt();
+    private val concussionApplication get() = (application!! as ConcussionApplication)
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -21,6 +22,11 @@ class TestActivity : AppCompatActivity() {
 
         // Hides the title bar
         supportActionBar?.hide()
+
+        if(isDemonstrationCard) {
+            concussionApplication.initializeNewSession()
+        }
+        concussionApplication.getSession.createFlashcardData(getFlashcardIndex)
 
         findViewById<Button>(R.id.debugNextFlashcardButton).setOnClickListener {
             var intent: Intent? = null
