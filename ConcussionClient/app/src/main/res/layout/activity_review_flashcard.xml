@@ -198,6 +198,31 @@
                     android:layout_width="match_parent"
                     android:layout_height="30dp" />
 
+                <TextView
+                    android:id="@+id/textView5"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="Time Elapsed"
+                    android:textAlignment="center"
+                    android:textColor="@color/off_white" />
+
+                <EditText
+                    android:id="@+id/elapsedTimeEditText"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginLeft="30dp"
+                    android:layout_marginRight="30dp"
+                    android:ems="10"
+                    android:inputType="numberDecimal"
+                    android:text="Name"
+                    android:textAlignment="center"
+                    android:textColor="@color/off_white"
+                    android:textSize="14sp" />
+
+                <Space
+                    android:layout_width="match_parent"
+                    android:layout_height="10dp" />
+
                 <Button
                     android:id="@+id/nextErrorButton"
                     android:layout_width="wrap_content"

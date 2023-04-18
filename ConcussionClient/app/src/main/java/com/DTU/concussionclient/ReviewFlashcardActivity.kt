@@ -17,6 +17,7 @@ class ReviewFlashcardActivity : AppCompatActivity(), FlashcardFragment.OnClickLi
 
     private val seed get() = intent.extras!!.getInt("Seed")
     private val getFlashcardIndex get() = intent.extras!!.getInt("FlashcardIndex")
+    private val getTimeElapsed get() = getFlashcardData.elapsedTime
     private val concussionApplication get() = (application as ConcussionApplication)
     private val getFlashcardData get() = concussionApplication.getSession.flashcardData[getFlashcardIndex]!!
     private val getFlashcardNumber get() = getFlashcardData.numbers[selectedIndex]!!
@@ -40,6 +41,14 @@ class ReviewFlashcardActivity : AppCompatActivity(), FlashcardFragment.OnClickLi
 
         findViewById<Button>(R.id.nextErrorButton).setOnClickListener {
             selectNext()
+        }
+
+        getFlashcardData.elapsedTime = intent.extras!!.getFloat("TimeElapsed")
+        val elapsedtimeEditText = findViewById<EditText>(R.id.elapsedTimeEditText)
+        elapsedtimeEditText.setText(getTimeElapsed.toString())
+        elapsedtimeEditText.doAfterTextChanged {
+            if(!elapsedtimeEditText.text.isEmpty())
+                getFlashcardData.elapsedTime = elapsedtimeEditText.text.toString().toFloat()
         }
 
         actualNumberView = findViewById(R.id.actualNumber)

@@ -2,6 +2,7 @@ package com.DTU.concussionclient
 
 import android.content.Intent
 import android.os.Bundle
+import android.util.Log
 import android.widget.Button
 import androidx.appcompat.app.AppCompatActivity
 import androidx.constraintlayout.widget.ConstraintLayout
@@ -15,6 +16,7 @@ class TestActivity : AppCompatActivity() {
     private val isDemonstrationCard get() = getFlashcardIndex == 0
     private val seed: Int = Random.nextInt();
     private val concussionApplication get() = (application!! as ConcussionApplication)
+    private var startTime: Long = 0
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -41,6 +43,7 @@ class TestActivity : AppCompatActivity() {
                 intent = Intent(this, ReviewFlashcardActivity::class.java)
                 intent.putExtra("FlashcardIndex", getFlashcardIndex)
                 intent.putExtra("Seed", seed)
+                intent.putExtra("TimeElapsed", (System.currentTimeMillis() - startTime) / 1000.0f)
             }
 
             startActivity(intent)
@@ -48,6 +51,8 @@ class TestActivity : AppCompatActivity() {
 
         if (isDemonstrationCard)
             createFullscreenPopup()
+
+        startTime = System.currentTimeMillis()
     }
 
     override fun onAttachFragment(fragment: Fragment) {
