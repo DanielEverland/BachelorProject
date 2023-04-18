@@ -1,6 +1,7 @@
 package com.DTU.concussionclient
 
 import android.content.Context
+import android.graphics.Color
 import android.os.Bundle
 import android.util.Log
 import android.view.LayoutInflater
@@ -11,6 +12,7 @@ import android.widget.LinearLayout.LayoutParams
 import android.widget.LinearLayout.TEXT_ALIGNMENT_CENTER
 import android.widget.Space
 import android.widget.TextView
+import androidx.core.graphics.drawable.toDrawable
 import androidx.fragment.app.Fragment
 import kotlin.random.Random
 
@@ -32,7 +34,7 @@ class FlashcardConfiguration(lineConfiguration: LineConfiguration, val name: Str
  * Use the [FlashcardFragment.newInstance] factory method to
  * create an instance of this fragment.
  */
-class FlashcardFragment : Fragment() {
+open class FlashcardFragment : Fragment() {
     interface OnClickListener {
         fun onClick(data: ConcussionApplication.FlashcardNumberData)
     }
@@ -43,8 +45,9 @@ class FlashcardFragment : Fragment() {
     private var clickListener: OnClickListener? = null
     private val concussionApplication get() = (requireActivity().application!! as ConcussionApplication)
     private val flashcardData get() = concussionApplication.getSession.getFlashcardData(flashcardIndex)
-    private val numberData get() = flashcardData.numbers
-    private var numberUILookup: MutableMap<View, Int> = mutableMapOf()
+    protected val numberData get() = flashcardData.numbers
+    protected var numberUILookup: MutableMap<View, Int> = mutableMapOf()
+    protected var numberIndexLookup: MutableMap<Int, View> = mutableMapOf()
 
     private var flashcardIndex: Int = 0
 
@@ -69,6 +72,10 @@ class FlashcardFragment : Fragment() {
             "Test III (4/4)",
             8, 6.0f, 15.0f)
     )
+
+    public fun flashcardNumberDataUpdated(index: Int) {
+        updateNumberView(index)
+    }
 
     fun getNumberData(index: Int) : ConcussionApplication.FlashcardNumberData {
         return numberData[index]!!
@@ -155,6 +162,9 @@ class FlashcardFragment : Fragment() {
         }
         numberData[numberIndex] = ConcussionApplication.FlashcardNumberData(numberIndex, newNumber, -1)
         numberUILookup[newView] = numberIndex
+        numberIndexLookup[numberIndex] = newView
+
+        updateNumberView(numberIndex)
 
         return newView
     }
@@ -206,6 +216,9 @@ class FlashcardFragment : Fragment() {
         newLine.arrowOffset = 40.0f
 
         return newLine
+    }
+
+    protected open fun updateNumberView(index: Int) {
     }
 
     companion object {

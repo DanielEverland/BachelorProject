@@ -51,6 +51,9 @@ class ReviewFlashcardActivity : AppCompatActivity(), FlashcardFragment.OnClickLi
             }
 
             getFlashcardNumber.actualValue = actualNumberView!!.text.toString().toInt()
+
+            Log.i("Lgodfo", "Changed number $selectedIndex")
+            flashcard!!.flashcardNumberDataUpdated(selectedIndex)
         }
     }
 
@@ -81,6 +84,7 @@ class ReviewFlashcardActivity : AppCompatActivity(), FlashcardFragment.OnClickLi
     }
 
     override fun onClick(data: ConcussionApplication.FlashcardNumberData) {
+        selectedIndex = data.index
         setSelectedNumber(data.index)
     }
 }

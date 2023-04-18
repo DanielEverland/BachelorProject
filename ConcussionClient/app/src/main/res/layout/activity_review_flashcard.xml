@@ -25,13 +25,13 @@
 
                 <androidx.fragment.app.FragmentContainerView
                     android:id="@+id/flashcardFragment"
-                    android:name="com.DTU.concussionclient.FlashcardFragment"
+                    android:name="com.DTU.concussionclient.ReviewFlashcardFragment"
                     android:layout_width="match_parent"
                     android:layout_height="match_parent"
                     android:layout_marginLeft="100dp"
                     android:layout_marginRight="100dp"
                     android:layout_weight="1"
-                    tools:layout="@layout/fragment_flashcard" />
+                    tools:layout="@layout/content_review_flashcard" />
 
                 <LinearLayout
                     android:layout_width="match_parent"
