@@ -1,6 +1,8 @@
 package com.DTU.concussionclient
 
 import android.view.View
+import android.view.ViewGroup
+import android.widget.ImageView
 import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.lifecycleScope
 import kotlinx.coroutines.Job
@@ -12,7 +14,7 @@ class SeeSoGazePlayer(
     private val activity : AppCompatActivity,
 
     // View indicating gaze position.
-    private val gazeIndicator : View,
+    playbackContainer : ViewGroup,
 
     // Map of timestamps and gaze coordinates.
     private val gazeData : Map<Int, Pair<Float, Float>>,
@@ -28,6 +30,21 @@ class SeeSoGazePlayer(
     private var playbackProgress : Int = 0
     private var isBlocked = false
     private var resumePlaybackOnUnblock = false
+
+    private var gazeIndicator : View = View.inflate(activity, R.layout.gaze_indicator, null) as ImageView
+    private var xOffset : Float = 0F
+    private var yOffset : Float = 0F
+
+    init {
+        playbackContainer.addView(gazeIndicator)
+        gazeIndicator.bringToFront()
+        gazeIndicator.post {
+            xOffset = -gazeIndicator.width.toFloat() / 2
+            yOffset = -gazeIndicator.height.toFloat() / 2
+            gazeIndicator.translationX = (gazeData[0]?.first ?: 0F) + xOffset
+            gazeIndicator.translationY = (gazeData[0]?.second ?: 0F) + yOffset
+        }
+    }
 
     // Get last timestamp.
     fun getLastTimestamp() : Int {
@@ -123,8 +140,8 @@ class SeeSoGazePlayer(
 
         // Set gaze indicator position.
         if (coords != null) {
-            gazeIndicator.translationX = coords.first
-            gazeIndicator.translationY = coords.second
+            gazeIndicator.translationX = coords.first + xOffset
+            gazeIndicator.translationY = coords.second + yOffset
         }
     }
 }

@@ -2,8 +2,7 @@ package com.DTU.concussionclient
 
 import android.os.Bundle
 import android.util.Log
-import android.view.View
-import android.widget.ImageView
+import android.view.ViewGroup
 import android.widget.SeekBar
 import android.widget.ToggleButton
 import androidx.appcompat.app.AppCompatActivity
@@ -17,7 +16,7 @@ class SeeSoActivity : AppCompatActivity() {
     private lateinit var toggleButtonRecord : ToggleButton
     private lateinit var toggleButtonPlay : ToggleButton
     private lateinit var seekBar : SeekBar
-    private lateinit var imageView : ImageView
+    private lateinit var container : ViewGroup
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -26,7 +25,7 @@ class SeeSoActivity : AppCompatActivity() {
         toggleButtonRecord = findViewById(R.id.toggleButtonRecord)
         toggleButtonPlay = findViewById(R.id.toggleButtonPlay)
         seekBar = findViewById(R.id.seekBar)
-        imageView = findViewById(R.id.imageView)
+        container = findViewById(R.id.container)
 
         enableRecord(false)
         enablePlay(false)
@@ -43,7 +42,7 @@ class SeeSoActivity : AppCompatActivity() {
 
                 gazePlayer = SeeSoGazePlayer(
                     this,
-                    imageView,
+                    container,
                     gazeRecorder.getGazeData(),
                     ::playbackCallback,
                     ::endPlaybackCallback)
@@ -57,7 +56,6 @@ class SeeSoActivity : AppCompatActivity() {
             if (isChecked) {
                 enableRecord(false)
                 gazePlayer.startPlayback()
-                imageView.visibility = View.VISIBLE
             }
             else {
                 gazePlayer.pausePlayback()
