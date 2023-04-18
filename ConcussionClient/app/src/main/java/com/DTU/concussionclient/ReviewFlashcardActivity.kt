@@ -45,6 +45,9 @@ class ReviewFlashcardActivity : AppCompatActivity(), FlashcardFragment.OnClickLi
         actualNumberView = findViewById(R.id.actualNumber)
         actualNumberView!!.doAfterTextChanged {
             val newText = actualNumberView!!.text.toString()
+            if(newText.isEmpty())
+                return@doAfterTextChanged
+
             if(newText.length > 1) {
                 actualNumberView!!.setText(newText[newText.length - 1].toString())
                 actualNumberView!!.setSelection(1)
@@ -52,7 +55,6 @@ class ReviewFlashcardActivity : AppCompatActivity(), FlashcardFragment.OnClickLi
 
             getFlashcardNumber.actualValue = actualNumberView!!.text.toString().toInt()
 
-            Log.i("Lgodfo", "Changed number $selectedIndex")
             flashcard!!.flashcardNumberDataUpdated(selectedIndex)
         }
     }
