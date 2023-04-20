@@ -1,29 +1,16 @@
 package com.DTU.concussionclient
 
-import android.view.View
-import android.view.ViewGroup
-import android.widget.ImageView
-import androidx.appcompat.app.AppCompatActivity
-import androidx.lifecycle.lifecycleScope
+import androidx.lifecycle.viewModelScope
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 
 class SeeSoGazePlayer(
-    // Parent activity.
-    private val activity : AppCompatActivity,
-
-    // View indicating gaze position.
-    playbackContainer : ViewGroup,
+    // Parent view model.
+    private val viewModel : SeeSoViewModel,
 
     // Map of timestamps and gaze coordinates.
-    private val gazeData : Map<Int, Pair<Float, Float>>,
-
-    // Function to call each time gaze indicator updates.
-    private val playbackCallback : (Int) -> (Unit),
-
-    // Function to call when playback ends.
-    private val endPlaybackCallback : () -> (Unit)
+    private val gazeData : Map<Int, Pair<Float, Float>>
 ) {
     private var lastTimestamp = gazeData.keys.last()
     private var playback : Job? = null
@@ -31,42 +18,28 @@ class SeeSoGazePlayer(
     private var isBlocked = false
     private var resumePlaybackOnUnblock = false
 
-    private var gazeIndicator : View = View.inflate(activity, R.layout.gaze_indicator, null) as ImageView
-    private var xOffset : Float = 0F
-    private var yOffset : Float = 0F
-
     init {
-        playbackContainer.addView(gazeIndicator)
-        gazeIndicator.bringToFront()
-        gazeIndicator.post {
-            xOffset = -gazeIndicator.width.toFloat() / 2
-            yOffset = -gazeIndicator.height.toFloat() / 2
-            gazeIndicator.translationX = (gazeData[0]?.first ?: 0F) + xOffset
-            gazeIndicator.translationY = (gazeData[0]?.second ?: 0F) + yOffset
+        viewModel.setPlaybackProgress(playbackProgress)
+    }
+
+    // Retrieve latest gaze data for the given timestamp.
+    fun retrieveGazeData(timestamp: Int) : Pair<Float, Float> {
+        // Get valid timestamp
+        val validTimestamp = getValidTimestamp(timestamp)
+
+        // Get coordinates of timestamp.
+        var coords = gazeData[validTimestamp]
+
+        // If no coordinates, find latest timestamp smaller than initial parameter.
+        if (coords == null) {
+            val closestTimestamp = gazeData.keys.findLast { k -> k < validTimestamp } ?: 0
+            coords = gazeData.getValue(closestTimestamp)
         }
+
+        return Pair(coords.first, coords.second)
     }
 
-    // Get last timestamp.
-    fun getLastTimestamp() : Int {
-        return lastTimestamp
-    }
-
-    // Get playback progress.
-    fun getPlaybackProgress() : Int {
-        return playbackProgress
-    }
-
-    // Set playback progress and update gaze indicator.
-    fun setPlaybackProgress(progress : Int) {
-        // Ensure progress is within allowed limits.
-        playbackProgress = if (progress < 0) 0
-            else if (progress > lastTimestamp) lastTimestamp
-            else progress
-
-        // Update gaze indicator.
-        displayGazeData(progress)
-    }
-
+    // Start playback.
     fun startPlayback() {
         // If playback is already in progress or is blocked, do nothing.
         if (playback?.isActive == true || isBlocked) {
@@ -77,13 +50,10 @@ class SeeSoGazePlayer(
         if (playbackProgress == lastTimestamp) playbackProgress = 0
 
         // Launch playback coroutine.
-        playback = activity.lifecycleScope.launch {
+        playback = viewModel.viewModelScope.launch {
             while(playbackProgress < lastTimestamp) {
-                // Update gaze indicator.
-                displayGazeData(playbackProgress)
-
-                // Launch external playback callback.
-                playbackCallback(playbackProgress)
+                // Update view model.
+                viewModel.setPlaybackProgress(playbackProgress)
 
                 // Wait for next timestamp in gaze data.
                 val nextTimestamp = gazeData.keys.first { k -> k > playbackProgress }
@@ -93,10 +63,9 @@ class SeeSoGazePlayer(
                 playbackProgress = nextTimestamp
             }
 
-            // Perform gaze indicator update and callback for final timestamp.
-            displayGazeData(playbackProgress)
-            playbackCallback(playbackProgress)
-            endPlaybackCallback()
+            // Perform final view model update.
+            viewModel.setPlaybackProgress(playbackProgress)
+            viewModel.pausePlayback()
         }
     }
 
@@ -127,21 +96,10 @@ class SeeSoGazePlayer(
         }
     }
 
-    // Update gaze indicator to match given timestamp.
-    private fun displayGazeData(timestamp : Int) {
-        // Get coordinates of timestamp.
-        var coords = gazeData[timestamp]
-
-        // If no coordinates, find latest timestamp smaller than initial parameter.
-        if (coords == null) {
-            val closestTimestamp = gazeData.keys.findLast { k -> k < timestamp }
-            coords = gazeData[closestTimestamp]
-        }
-
-        // Set gaze indicator position.
-        if (coords != null) {
-            gazeIndicator.translationX = coords.first + xOffset
-            gazeIndicator.translationY = coords.second + yOffset
-        }
+    // Adjust a given timestamp to be within allowed limits.
+    private fun getValidTimestamp(timestamp : Int) : Int {
+        return if (timestamp < 0) 0
+        else if (timestamp > lastTimestamp) lastTimestamp
+        else timestamp
     }
 }

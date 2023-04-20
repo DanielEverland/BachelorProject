@@ -1,9 +1,6 @@
 package com.DTU.concussionclient
 
-import android.Manifest
-import android.content.pm.PackageManager
-import androidx.appcompat.app.AppCompatActivity
-import androidx.core.content.ContextCompat
+import android.content.Context
 import camp.visual.gazetracker.GazeTracker
 import camp.visual.gazetracker.callback.GazeCallback
 import camp.visual.gazetracker.callback.InitializationCallback
@@ -11,11 +8,9 @@ import camp.visual.gazetracker.constant.InitializationErrorType
 import camp.visual.gazetracker.device.CameraPosition
 import camp.visual.gazetracker.filter.OneEuroFilterManager
 
-// Initialization and permission requests adapted from SeeSo quick start guide:
-// https://docs.seeso.io/nonversioning/quick-start/android-quick-start/
 class SeeSoGazeRecorder(
-    // Parent activity.
-    private val activity : AppCompatActivity,
+    // Application context.
+    private val appContext : Context,
 
     // On gaze tracker initialization success callback
     private val initSuccessCallback : () -> (Unit),
@@ -23,15 +18,15 @@ class SeeSoGazeRecorder(
     // On gaze tracker initialization failure callback
     private val initFailCallback : (String) -> (Unit)
 ) {
-    // License and permission info.
+    // License info.
     private val licenseKey = "dev_bcokijcyjgzfqbwxrcpn4v08jvwlepqfnprihj81"
-    private val cameraPermission = Manifest.permission.CAMERA
-    private val requestCode = 1000
 
     // Device info.
     private val modelName = "SM-S908B/DS"
     private val screenOriginX = -37f
     private val screenOriginY = 3f
+    private val screenWidth = appContext.resources.displayMetrics.widthPixels
+    private val screenHeight = appContext.resources.displayMetrics.heightPixels
 
     // Gaze tracker fields.
     private lateinit var gazeTracker : GazeTracker
@@ -45,9 +40,7 @@ class SeeSoGazeRecorder(
             gazeTracker?.let { initSuccess(it) } ?: initFail(error)
         }
 
-    // On creation, check permission and initialize gaze tracker.
     init {
-        checkPermission()
         initGaze()
     }
 
@@ -67,17 +60,9 @@ class SeeSoGazeRecorder(
         gazeTracker.stopTracking()
     }
 
-    // Check permission status. Request permission if not already granted.
-    private fun checkPermission() {
-        val result = ContextCompat.checkSelfPermission(activity, cameraPermission)
-        if (result == PackageManager.PERMISSION_DENIED) {
-            activity.requestPermissions(arrayOf(cameraPermission), requestCode)
-        }
-    }
-
     // Initialize gaze tracker.
     private fun initGaze() {
-        GazeTracker.initGazeTracker(activity.applicationContext, licenseKey, initializationCallback)
+        GazeTracker.initGazeTracker(appContext, licenseKey, initializationCallback)
     }
 
     // On gaze tracker initialization success.
@@ -125,14 +110,14 @@ class SeeSoGazeRecorder(
                 timestampOffset = gazeInfo.timestamp
             }
 
-            // Get coordinates and timestamps.
+            // Get and convert coordinates and timestamps.
             val filteredValues = oneEuroFilterManager.filteredValues
-            val filteredX = filteredValues[0]
-            val filteredY = filteredValues[1]
+            val x = filteredValues[0] / screenWidth
+            val y = filteredValues[1] / screenHeight
             val timestamp = (gazeInfo.timestamp - timestampOffset).toInt()
 
             // Record gaze tracker data.
-            gazeData[timestamp] = Pair(filteredX, filteredY)
+            gazeData[timestamp] = Pair(x, y)
         }
     }
 }

@@ -1,22 +1,29 @@
 package com.DTU.concussionclient
 
 import android.os.Bundle
-import android.util.Log
+import android.view.View
 import android.view.ViewGroup
+import android.widget.ImageView
 import android.widget.SeekBar
 import android.widget.ToggleButton
 import androidx.appcompat.app.AppCompatActivity
+import androidx.activity.viewModels
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.lifecycleScope
+import androidx.lifecycle.repeatOnLifecycle
 import kotlinx.coroutines.*
 
 
 class SeeSoActivity : AppCompatActivity() {
-    private lateinit var gazeRecorder : SeeSoGazeRecorder
-    private lateinit var gazePlayer : SeeSoGazePlayer
-
     private lateinit var toggleButtonRecord : ToggleButton
     private lateinit var toggleButtonPlay : ToggleButton
     private lateinit var seekBar : SeekBar
     private lateinit var container : ViewGroup
+
+    private var containerWidth : Float = 0F
+    private var containerHeight : Float = 0F
+    private var indicatorOffsetX : Float = 0F
+    private var indicatorOffsetY : Float = 0F
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -27,55 +34,82 @@ class SeeSoActivity : AppCompatActivity() {
         seekBar = findViewById(R.id.seekBar)
         container = findViewById(R.id.container)
 
-        enableRecord(false)
-        enablePlay(false)
+        val gazeIndicator : ImageView = View.inflate(this, R.layout.gaze_indicator, null) as ImageView
+        container.addView(gazeIndicator)
+        container.post(Runnable {
+            containerWidth = container.width.toFloat()
+            containerHeight = container.height.toFloat()
+        })
+        gazeIndicator.post(Runnable {
+            indicatorOffsetX = -gazeIndicator.width / 2F
+            indicatorOffsetY = -gazeIndicator.height / 2F
+            gazeIndicator.translationX = indicatorOffsetX
+            gazeIndicator.translationY = indicatorOffsetY
+        })
 
-        gazeRecorder = SeeSoGazeRecorder(this, ::initSuccess, ::initFail)
+        val viewModel : SeeSoViewModel by viewModels()
+        lifecycleScope.launch {
+            repeatOnLifecycle(Lifecycle.State.STARTED) {
+                viewModel.uiState.collect {
+                    enableRecord(it.enableRecord)
+                    enablePlay(it.enablePlay)
+
+                    if (it.maxProgress != null) {
+                        seekBar.visibility = View.VISIBLE
+                        seekBar.max = it.maxProgress
+                        seekBar.progress = it.playProgress
+                    }
+                    else {
+                        seekBar.visibility = View.INVISIBLE
+                        seekBar.max = 0
+                        seekBar.progress = 0
+                    }
+
+                    if (it.indicatorX != null && it.indicatorY != null) {
+                        gazeIndicator.translationX = (it.indicatorX * containerWidth) + indicatorOffsetX
+                        gazeIndicator.translationY = (it.indicatorY * containerHeight) + indicatorOffsetY
+                        gazeIndicator.visibility = View.VISIBLE
+                    }
+                    else {
+                        gazeIndicator.visibility = View.INVISIBLE
+                        gazeIndicator.translationX = indicatorOffsetX
+                        gazeIndicator.translationY = indicatorOffsetY
+                    }
+                }
+            }
+        }
 
         toggleButtonRecord.setOnCheckedChangeListener { _, isChecked ->
             if (isChecked) {
-                enablePlay(false)
-                gazeRecorder.startTracking()
+                viewModel.startRecording()
             }
             else {
-                gazeRecorder.stopTracking()
-
-                gazePlayer = SeeSoGazePlayer(
-                    this,
-                    container,
-                    gazeRecorder.getGazeData(),
-                    ::playbackCallback,
-                    ::endPlaybackCallback)
-
-                seekBar.max = gazePlayer.getLastTimestamp()
-                enablePlay(true)
+                viewModel.stopRecording()
             }
         }
 
         toggleButtonPlay.setOnCheckedChangeListener { _, isChecked ->
             if (isChecked) {
-                enableRecord(false)
-                gazePlayer.startPlayback()
+                viewModel.startPlayback()
             }
             else {
-                gazePlayer.pausePlayback()
-                enableRecord(true)
+                viewModel.pausePlayback()
             }
         }
 
         seekBar.setOnSeekBarChangeListener(object : SeekBar.OnSeekBarChangeListener {
             override fun onProgressChanged(seek: SeekBar?, progress: Int, fromUser: Boolean) {
                 if (fromUser) {
-                    gazePlayer.setPlaybackProgress(progress)
+                    viewModel.setPlaybackProgress(progress)
                 }
             }
 
             override fun onStartTrackingTouch(seek: SeekBar?) {
-                gazePlayer.blockPlayback()
+                viewModel.blockPlayback()
             }
 
             override fun onStopTrackingTouch(seek: SeekBar?) {
-                gazePlayer.unblockPlayback()
+                viewModel.unblockPlayback()
             }
         })
     }
@@ -88,23 +122,5 @@ class SeeSoActivity : AppCompatActivity() {
     private fun enablePlay(bool : Boolean) {
         toggleButtonPlay.isEnabled = bool
         toggleButtonPlay.isClickable = bool
-    }
-
-    private fun initSuccess() {
-        runOnUiThread(Runnable {
-            enableRecord(true)
-        })
-    }
-
-    private fun initFail(error : String) {
-        Log.w("SeeSo", "error description: $error")
-    }
-
-    private fun playbackCallback(progress : Int) {
-        seekBar.progress = progress
-    }
-
-    private fun endPlaybackCallback() {
-        toggleButtonPlay.toggle()
     }
 }
