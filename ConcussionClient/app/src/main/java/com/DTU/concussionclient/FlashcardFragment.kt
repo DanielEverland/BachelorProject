@@ -160,7 +160,7 @@ open class FlashcardFragment : Fragment() {
             Log.i("FlashcardFragment", "Pressed Flashcard Number. Index: ${data.index}, Number: ${data.expectedValue}")
             clickListener?.onClick(data)
         }
-        numberData[numberIndex] = ConcussionApplication.FlashcardNumberData(numberIndex, newNumber, -1)
+        numberData[numberIndex] = ConcussionApplication.FlashcardNumberData(numberIndex, newNumber, newNumber)
         numberUILookup[newView] = numberIndex
         numberIndexLookup[numberIndex] = newView
 
