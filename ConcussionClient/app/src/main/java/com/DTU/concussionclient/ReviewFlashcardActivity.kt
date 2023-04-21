@@ -21,6 +21,7 @@ class ReviewFlashcardActivity : AppCompatActivity(), FlashcardFragment.OnClickLi
     private val concussionApplication get() = (application as ConcussionApplication)
     private val getFlashcardData get() = concussionApplication.getSession.flashcardData[getFlashcardIndex]!!
     private val getFlashcardNumber get() = getFlashcardData.numbers[selectedIndex]!!
+    private val isFinalFlashcard get() = getFlashcardIndex >= 3
 
     private var actualNumberView: EditText? = null
     private var flashcard: FlashcardFragment? = null
@@ -34,9 +35,15 @@ class ReviewFlashcardActivity : AppCompatActivity(), FlashcardFragment.OnClickLi
         supportActionBar?.hide()
 
         findViewById<Button>(R.id.debugNextTestButton).setOnClickListener {
-            val intent = Intent(this, TestActivity::class.java)
-            intent.putExtra("FlashcardIndex", getFlashcardIndex + 1)
-            startActivity(intent)
+            if(isFinalFlashcard) {
+                val intent = Intent(this, TestEndscreenActivity::class.java)
+                startActivity(intent)
+            }
+            else {
+                val intent = Intent(this, TestActivity::class.java)
+                intent.putExtra("FlashcardIndex", getFlashcardIndex + 1)
+                startActivity(intent)
+            }
         }
 
         findViewById<Button>(R.id.nextErrorButton).setOnClickListener {
