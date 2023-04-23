@@ -17,4 +17,6 @@
     <color name="black_overlay">#66000000</color>
     <color name="fullscreen_blocker">#EB5C5C5C</color>
     <color name="off_white">#EAEAEA</color>
+    <color name="concussion_red">#C13131</color>
+    <color name="healthy_green">#28A745</color>
 </resources>
