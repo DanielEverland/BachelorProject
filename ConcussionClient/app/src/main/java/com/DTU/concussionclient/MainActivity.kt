@@ -18,6 +18,9 @@ class MainActivity : AppCompatActivity() {
 
     private val concussionApplication get() = application as ConcussionApplication
     private val preferences get() = concussionApplication.getPreferences(this)
+    private val hasBaseline get() = !preferences.getFloat("Baseline", Float.NaN).isNaN()
+
+    private var screeningButton: FrontPageTestButtonFragment? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -51,7 +54,10 @@ class MainActivity : AppCompatActivity() {
                 "Has an accident or injury left you dizzy, disoriented, or unconscious? " +
                         "Assess your injury and seek a medical professional immediately!",
                 R.drawable.post_injury_button,
-                true)
+                isScreening = true,
+                isEnabled = hasBaseline)
+
+            screeningButton = fragment as FrontPageTestButtonFragment
         }
         else if(fragment.id == R.id.baselineFragment)
         {
@@ -60,7 +66,9 @@ class MainActivity : AppCompatActivity() {
                 "It’s important to regularly establish a baseline of your performance in" +
                         "order to accurately assess your injury in case of an accident",
                 R.drawable.baseline_button,
-                false)
+                isScreening = false,
+                isEnabled = true
+            )
         }
         else if(fragment.id == R.id.concussionFooter)
         {
@@ -78,13 +86,14 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
-    private fun getTestButtonFragmentBundle(title: String, body: String, image: Int, isScreening: Boolean) : Bundle
+    private fun getTestButtonFragmentBundle(title: String, body: String, image: Int, isScreening: Boolean, isEnabled: Boolean) : Bundle
     {
         val bundle = Bundle()
         bundle.putString("TitleText", title)
         bundle.putString("BodyText", body)
         bundle.putInt("ImageResource", image)
         bundle.putBoolean("IsScreening", isScreening)
+        bundle.putBoolean("IsEnabled", isEnabled)
 
         return bundle
     }

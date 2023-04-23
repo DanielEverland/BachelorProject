@@ -68,8 +68,7 @@ class EndscreenFragment_Baseline : Fragment() {
                     "Press continue to start the second round."
         }
         else {
-            var text: String = ""
-            text = "You have completed the second round\n" +
+            var text: String = "You have completed the second round\n" +
                     "The test is now complete"
 
             if(getSessionBestScore() > preferences.getFloat("Baseline", Float.NaN)) {
