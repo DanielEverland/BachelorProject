@@ -19,7 +19,7 @@ class ReviewFlashcardActivity : AppCompatActivity(), FlashcardFragment.OnClickLi
     private val getFlashcardIndex get() = intent.extras!!.getInt("FlashcardIndex")
     private val getTimeElapsed get() = getFlashcardData.elapsedTime
     private val concussionApplication get() = (application as ConcussionApplication)
-    private val getFlashcardData get() = concussionApplication.getSession.flashcardData[getFlashcardIndex]!!
+    private val getFlashcardData get() = concussionApplication.getInstance.flashcardData[getFlashcardIndex]!!
     private val getFlashcardNumber get() = getFlashcardData.numbers[selectedIndex]!!
     private val isFinalFlashcard get() = getFlashcardIndex >= 3
 

@@ -1,5 +1,6 @@
 package com.DTU.concussionclient
 
+import android.app.Activity
 import android.content.Intent
 import android.os.Bundle
 import android.util.Log
@@ -15,6 +16,7 @@ import android.widget.TextView
 private const val TitleArg = "TitleText"
 private const val BodyArg = "BodyText"
 private const val ImageArg = "ImageResource"
+private const val IsScreeningArg = "IsScreening"
 
 /**
  * A simple [Fragment] subclass.
@@ -25,6 +27,9 @@ class FrontPageTestButtonFragment : Fragment() {
     private var titleText: String? = null
     private var bodyText: String? = null
     private var imageResource: Int? = null
+    private var isScreening: Boolean? = null
+
+    private val concussionApplication get() = (context as Activity).application as ConcussionApplication
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -33,6 +38,7 @@ class FrontPageTestButtonFragment : Fragment() {
             titleText = it.getString(TitleArg)
             bodyText = it.getString(BodyArg)
             imageResource = it.getInt(ImageArg)
+            isScreening = it.getBoolean(IsScreeningArg)
         }
     }
 
@@ -51,8 +57,11 @@ class FrontPageTestButtonFragment : Fragment() {
         }
 
         root.findViewById<ImageButton>(R.id.testButtonFragmentButton).setOnClickListener {
+            concussionApplication.initializeNewSession(isScreening!!)
+
             val newIntent = Intent(activity, TestActivity::class.java)
             newIntent.putExtra("FlashcardIndex", 0)
+            newIntent.putExtra("IsScreening", isScreening!!)
             startActivity(newIntent)
         }
 
@@ -70,12 +79,13 @@ class FrontPageTestButtonFragment : Fragment() {
          */
         // TODO: Rename and change types and number of parameters
         @JvmStatic
-        fun newInstance(param1: String, param2: String, param3: Int) =
+        fun newInstance(param1: String, param2: String, param3: Int, isScreening: Boolean) =
             FrontPageTestButtonFragment().apply {
                 arguments = Bundle().apply {
                     putString(TitleArg, param1)
                     putString(BodyArg, param2)
                     putInt(ImageArg, param3)
+                    putBoolean(IsScreeningArg, isScreening)
                 }
             }
     }

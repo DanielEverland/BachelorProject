@@ -12,6 +12,8 @@ import kotlin.random.Random
 
 class TestActivity : AppCompatActivity() {
 
+    private val getInstance get() = concussionApplication.getInstance
+    private val isScreening get() = intent.extras!!.getBoolean("IsScreening")
     private val getFlashcardIndex get() = intent.extras!!.getInt("FlashcardIndex")
     private val isDemonstrationCard get() = getFlashcardIndex == 0
     private val seed: Int = Random.nextInt();
@@ -25,10 +27,7 @@ class TestActivity : AppCompatActivity() {
         // Hides the title bar
         supportActionBar?.hide()
 
-        if(isDemonstrationCard) {
-            concussionApplication.initializeNewSession()
-        }
-        concussionApplication.getSession.createFlashcardData(getFlashcardIndex)
+        getInstance.createFlashcardData(getFlashcardIndex)
 
         findViewById<Button>(R.id.debugNextFlashcardButton).setOnClickListener {
             var intent: Intent? = null
@@ -65,8 +64,6 @@ class TestActivity : AppCompatActivity() {
     }
 
     private fun createFullscreenPopup() {
-        val layout = findViewById<ConstraintLayout>(R.id.fullscreenPopupLayout)
-
         val popup = FullscreenPopupFragment()
         val ft = supportFragmentManager.beginTransaction()
         ft.add(R.id.fullscreenPopupLayout, popup)
