@@ -1,7 +1,6 @@
 package com.DTU.concussionclient
 
 import android.app.Application
-import android.util.Log
 import androidx.lifecycle.AndroidViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -9,8 +8,7 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 
 data class SeeSoUiState(
-    val enableRecord : Boolean = false,
-    val enablePlay : Boolean = false,
+    val isPlaying : Boolean = false,
     val playProgress : Int = 0,
     val maxProgress : Int? = null,
     val indicatorX : Float? = null,
@@ -18,50 +16,46 @@ data class SeeSoUiState(
 )
 
 class SeeSoViewModel(application: Application) : AndroidViewModel(application) {
-    private val gazeRecorder : SeeSoGazeRecorder = SeeSoGazeRecorder(
-        getApplication<Application>().applicationContext,
-        ::initSuccess,
-        ::initFail)
     private var gazePlayer : SeeSoGazePlayer? = null
     private val _uiState = MutableStateFlow(SeeSoUiState())
 
     val uiState : StateFlow<SeeSoUiState> = _uiState.asStateFlow()
 
-    fun startRecording() {
-        _uiState.update { currentState ->
-            currentState.copy(
-                enableRecord = true,
-                enablePlay = false,
-                playProgress = 0,
-                maxProgress = null,
-                indicatorX = null,
-                indicatorY = null
-            )
+    fun initGazePlayer(gazeData : Map<Int, Pair<Float, Float>>?) {
+        if (!gazeData.isNullOrEmpty()) {
+            gazePlayer = SeeSoGazePlayer(this, gazeData)
+
+            _uiState.update { currentState ->
+                currentState.copy(
+                    isPlaying = false,
+                    playProgress = 0,
+                    maxProgress = gazeData.keys.last(),
+                    indicatorX = gazeData[0]?.first,
+                    indicatorY = gazeData[0]?.second
+                )
+            }
         }
-        gazeRecorder.startTracking()
     }
 
-    fun stopRecording() {
-        gazeRecorder.stopTracking()
-        val gazeData = gazeRecorder.getGazeData()
-        val hasData = gazeData.isNotEmpty()
-        gazePlayer = if (hasData) SeeSoGazePlayer(this, gazeData) else null
+    fun togglePlay() {
         _uiState.update { currentState ->
             currentState.copy(
-                enableRecord = true,
-                enablePlay = hasData,
-                playProgress = 0,
-                maxProgress = gazeData.keys.last(),
-                indicatorX = gazeData[0]?.first,
-                indicatorY = gazeData[0]?.second
+                isPlaying = !currentState.isPlaying
             )
+        }
+
+        if (uiState.value.isPlaying) {
+            gazePlayer?.startPlayback()
+        }
+        else {
+            gazePlayer?.pausePlayback()
         }
     }
 
     fun startPlayback() {
         _uiState.update { currentState ->
             currentState.copy(
-                enableRecord = false
+                isPlaying = true
             )
         }
         gazePlayer?.startPlayback()
@@ -70,7 +64,7 @@ class SeeSoViewModel(application: Application) : AndroidViewModel(application) {
     fun pausePlayback() {
         _uiState.update { currentState ->
             currentState.copy(
-                enableRecord = true
+                isPlaying = false
             )
         }
         gazePlayer?.pausePlayback()
@@ -85,7 +79,7 @@ class SeeSoViewModel(application: Application) : AndroidViewModel(application) {
     }
 
     fun setPlaybackProgress(progress : Int) {
-        val coords = gazePlayer?.retrieveGazeData(progress)
+        val coords = gazePlayer?.setTimestamp(progress)
         _uiState.update { currentState ->
             currentState.copy(
                 playProgress = progress,
@@ -95,15 +89,9 @@ class SeeSoViewModel(application: Application) : AndroidViewModel(application) {
         }
     }
 
-    private fun initSuccess() {
-        _uiState.update { currentState ->
-            currentState.copy(
-                enableRecord = true
-            )
-        }
-    }
-
-    private fun initFail(error : String) {
-        Log.w("SeeSo", "error description: $error")
+    fun getTimestampText(timestamp : Int) : String {
+        return (timestamp / 60000).toString() +
+                ":" +
+                (timestamp / 1000).toString().padStart(2, '0')
     }
 }

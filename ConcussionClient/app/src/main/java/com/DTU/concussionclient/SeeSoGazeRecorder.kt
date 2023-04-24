@@ -25,8 +25,12 @@ class SeeSoGazeRecorder(
     private val modelName = "SM-S908B/DS"
     private val screenOriginX = -37f
     private val screenOriginY = 3f
-    private val screenWidth = appContext.resources.displayMetrics.widthPixels
-    private val screenHeight = appContext.resources.displayMetrics.heightPixels
+
+    // Flashcard dimensions.
+    private var flashcardWidth : Int? = null
+    private var flashcardHeight : Int? = null
+    private var flashcardXOffset : Int? = null
+    private var flashcardYOffset : Int? = null
 
     // Gaze tracker fields.
     private lateinit var gazeTracker : GazeTracker
@@ -50,7 +54,11 @@ class SeeSoGazeRecorder(
     }
 
     // Start gaze tracking.
-    fun startTracking() {
+    fun startTracking(width : Int, height : Int, xOffset : Int, yOffset : Int) {
+        flashcardWidth = width
+        flashcardHeight = height
+        flashcardXOffset = xOffset
+        flashcardYOffset = yOffset
         gazeData = mutableMapOf()
         gazeTracker.startTracking()
     }
@@ -112,8 +120,8 @@ class SeeSoGazeRecorder(
 
             // Get and convert coordinates and timestamps.
             val filteredValues = oneEuroFilterManager.filteredValues
-            val x = filteredValues[0] / screenWidth
-            val y = filteredValues[1] / screenHeight
+            val x = (filteredValues[0] - checkNotNull(flashcardXOffset)) / checkNotNull(flashcardWidth)
+            val y = (filteredValues[1] - checkNotNull(flashcardYOffset)) / checkNotNull(flashcardHeight)
             val timestamp = (gazeInfo.timestamp - timestampOffset).toInt()
 
             // Record gaze tracker data.

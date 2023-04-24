@@ -3,6 +3,8 @@ package com.DTU.concussionclient
 import android.app.Application
 
 class ConcussionApplication : Application() {
+    lateinit var gazeRecorder : SeeSoGazeRecorder
+
     data class FlashcardNumberData(val index: Int, val expectedValue: Int, var actualValue: Int) {
     }
 
@@ -23,7 +25,15 @@ class ConcussionApplication : Application() {
 
     private var session: TestingSession? = null
 
+
+    fun initGazeRecorder(onInitSuccess : () -> Unit) {
+        gazeRecorder = SeeSoGazeRecorder(applicationContext, onInitSuccess, ::onRecorderInitFail)
+    }
+
     fun initializeNewSession() {
         session = TestingSession(mutableMapOf())
+    }
+
+    private fun onRecorderInitFail(error : String) {
     }
 }

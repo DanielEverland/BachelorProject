@@ -22,10 +22,11 @@ class SeeSoGazePlayer(
         viewModel.setPlaybackProgress(playbackProgress)
     }
 
-    // Retrieve latest gaze data for the given timestamp.
-    fun retrieveGazeData(timestamp: Int) : Pair<Float, Float> {
-        // Get valid timestamp
+    // Set timestamp and retrieve latest gaze data for the given timestamp.
+    fun setTimestamp(timestamp: Int) : Pair<Float, Float> {
+        // Get and set valid timestamp
         val validTimestamp = getValidTimestamp(timestamp)
+        playbackProgress = validTimestamp
 
         // Get coordinates of timestamp.
         var coords = gazeData[validTimestamp]
@@ -36,7 +37,7 @@ class SeeSoGazePlayer(
             coords = gazeData.getValue(closestTimestamp)
         }
 
-        return Pair(coords.first, coords.second)
+        return coords
     }
 
     // Start playback.
