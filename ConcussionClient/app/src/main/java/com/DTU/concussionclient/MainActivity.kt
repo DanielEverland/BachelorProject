@@ -27,7 +27,7 @@ class MainActivity : AppCompatActivity() {
         setContentView(R.layout.activity_main)
 
         // Disable changing orientation
-        requestedOrientation = ActivityInfo.SCREEN_ORIENTATION_NOSENSOR
+        requestedOrientation = ActivityInfo.SCREEN_ORIENTATION_REVERSE_LANDSCAPE
 
         // Hides the title bar
         supportActionBar?.hide()
@@ -70,20 +70,6 @@ class MainActivity : AppCompatActivity() {
                 isEnabled = true
             )
         }
-        else if(fragment.id == R.id.concussionFooter)
-        {
-            fragment.arguments = getFooterFragmentBundle(
-                "About\nConcussions",
-                R.drawable.concussionicon
-            )
-        }
-        else if(fragment.id == R.id.historyFooter)
-        {
-            fragment.arguments = getFooterFragmentBundle(
-                "My Test\nHistory",
-                R.drawable.historyicon
-            )
-        }
     }
 
     private fun getTestButtonFragmentBundle(title: String, body: String, image: Int, isScreening: Boolean, isEnabled: Boolean) : Bundle
@@ -94,15 +80,6 @@ class MainActivity : AppCompatActivity() {
         bundle.putInt("ImageResource", image)
         bundle.putBoolean("IsScreening", isScreening)
         bundle.putBoolean("IsEnabled", isEnabled)
-
-        return bundle
-    }
-
-    private fun getFooterFragmentBundle(text: String, image: Int) : Bundle
-    {
-        val bundle = Bundle()
-        bundle.putInt("ImageResource", image)
-        bundle.putString("Text", text)
 
         return bundle
     }
