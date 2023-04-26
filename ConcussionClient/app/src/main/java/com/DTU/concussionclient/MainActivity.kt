@@ -10,7 +10,9 @@ import androidx.fragment.app.Fragment
 
 
 class MainActivity : AppCompatActivity() {
-    private val permissions = arrayOf(Manifest.permission.CAMERA)
+    private val permissions = arrayOf(
+        Manifest.permission.CAMERA,
+        Manifest.permission.RECORD_AUDIO)
     private val permissionRequestCode = 1000
 
     private lateinit var postInjuryTestFragment : FrontPageTestButtonFragment
@@ -40,7 +42,7 @@ class MainActivity : AppCompatActivity() {
 
     private fun onPermissionGranted(isGranted : Boolean) {
         if (isGranted) {
-                (application as ConcussionApplication).initGazeRecorder(::enableTestButtons)
+            (application as ConcussionApplication).initGazeRecorder(::enableTestButtons)
         }
     }
 
@@ -70,8 +72,8 @@ class MainActivity : AppCompatActivity() {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults)
         when (requestCode) {
             permissionRequestCode -> if (grantResults.size > 0) {
-                val cameraPermissionAccepted = grantResults[0] == PackageManager.PERMISSION_GRANTED
-                if (cameraPermissionAccepted) {
+                val permissionsAccepted = grantResults.all { res -> res == PackageManager.PERMISSION_GRANTED }
+                if (permissionsAccepted) {
                     onPermissionGranted(true)
                 } else {
                     onPermissionGranted(false)

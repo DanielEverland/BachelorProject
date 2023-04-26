@@ -13,7 +13,7 @@ class TestActivity : AppCompatActivity() {
 
     private val getFlashcardIndex get() = intent.extras!!.getInt("FlashcardIndex")
     private val isDemonstrationCard get() = getFlashcardIndex == 0
-    private val seed: Int = Random.nextInt();
+    private val seed: Int = Random.nextInt()
     private val concussionApplication get() = (application!! as ConcussionApplication)
     private var startTime: Long = 0
 
@@ -35,6 +35,7 @@ class TestActivity : AppCompatActivity() {
 
         findViewById<Button>(R.id.debugNextFlashcardButton).setOnClickListener {
             concussionApplication.gazeRecorder.stopTracking()
+            concussionApplication.audioRecorder.stop()
 
             var intent: Intent? = null
 
@@ -58,9 +59,11 @@ class TestActivity : AppCompatActivity() {
             createFullscreenPopup()
 
         fragmentContainerView.post {
+            concussionApplication.initAudioRecorder()
             val offset = IntArray(2)
             fragmentContainerView.getLocationOnScreen(offset)
             startTime = System.currentTimeMillis()
+            concussionApplication.audioRecorder.start()
             concussionApplication.gazeRecorder.startTracking(
                 fragmentContainerView.width,
                 fragmentContainerView.height,

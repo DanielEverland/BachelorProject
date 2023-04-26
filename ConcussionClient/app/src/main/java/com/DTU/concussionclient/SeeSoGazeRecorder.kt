@@ -60,6 +60,7 @@ class SeeSoGazeRecorder(
         flashcardXOffset = xOffset
         flashcardYOffset = yOffset
         gazeData = mutableMapOf()
+        timestampOffset = System.currentTimeMillis()
         gazeTracker.startTracking()
     }
 
@@ -113,11 +114,6 @@ class SeeSoGazeRecorder(
     // On gaze tracker callback.
     private val gazeCallback = GazeCallback { gazeInfo ->
         if (oneEuroFilterManager.filterValues(gazeInfo.timestamp, gazeInfo.x, gazeInfo.y)) {
-            // If no gaze data, use first timestamp as offset to start at 0.
-            if (gazeData.isEmpty()) {
-                timestampOffset = gazeInfo.timestamp
-            }
-
             // Get and convert coordinates and timestamps.
             val filteredValues = oneEuroFilterManager.filteredValues
             val x = (filteredValues[0] - checkNotNull(flashcardXOffset)) / checkNotNull(flashcardWidth)

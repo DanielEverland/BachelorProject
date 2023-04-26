@@ -1,43 +1,55 @@
 package com.DTU.concussionclient
 
+import android.media.MediaPlayer
 import androidx.lifecycle.viewModelScope
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 
-class SeeSoGazePlayer(
+class AudioGazePlayer(
     // Parent view model.
-    private val viewModel : SeeSoViewModel,
+    private val viewModel : ReviewFlashcardViewModel,
 
     // Map of timestamps and gaze coordinates.
-    private val gazeData : Map<Int, Pair<Float, Float>>
+    private val gazeData : Map<Int, Pair<Float, Float>>,
+
+    // Media player for voice recording.
+    private val audioPlayer : MediaPlayer
 ) {
-    private var lastTimestamp = gazeData.keys.last()
+    private val updateDelay = 33
+    private var maxProgress = audioPlayer.duration
     private var playback : Job? = null
-    private var playbackProgress : Int = 0
+    private var progress : Int = 0
     private var isBlocked = false
     private var resumePlaybackOnUnblock = false
 
-    init {
-        viewModel.setPlaybackProgress(playbackProgress)
-    }
-
-    // Set timestamp and retrieve latest gaze data for the given timestamp.
-    fun setTimestamp(timestamp: Int) : Pair<Float, Float> {
-        // Get and set valid timestamp
+    // Get coordinates for timestamp.
+    fun getCoords(timestamp: Int) : Pair<Float, Float>? {
+        // Get valid timestamp.
         val validTimestamp = getValidTimestamp(timestamp)
-        playbackProgress = validTimestamp
 
         // Get coordinates of timestamp.
         var coords = gazeData[validTimestamp]
 
-        // If no coordinates, find latest timestamp smaller than initial parameter.
+        // If no coordinates, try to find latest timestamp within update delay.
         if (coords == null) {
-            val closestTimestamp = gazeData.keys.findLast { k -> k < validTimestamp } ?: 0
-            coords = gazeData.getValue(closestTimestamp)
+            val closestTimestamp = gazeData.keys.findLast { k -> k < validTimestamp - updateDelay } ?: 0
+            coords = gazeData[closestTimestamp]
         }
 
         return coords
+    }
+
+    // Set to given timestamp.
+    fun seekTo(timestamp: Int) {
+        // Get and set valid timestamp.
+        val validTimestamp = getValidTimestamp(timestamp)
+        progress = validTimestamp
+
+        // Set audio player progress.
+        audioPlayer.seekTo(validTimestamp)
+
+        viewModel.updateForProgress(validTimestamp)
     }
 
     // Start playback.
@@ -47,32 +59,32 @@ class SeeSoGazePlayer(
             return
         }
 
-        // If playback is at the end, restart playback.
-        if (playbackProgress == lastTimestamp) playbackProgress = 0
+        // Start audio player and update progress.
+        audioPlayer.start()
+        progress = audioPlayer.currentPosition
 
         // Launch playback coroutine.
         playback = viewModel.viewModelScope.launch {
-            while(playbackProgress < lastTimestamp) {
+            while(progress < maxProgress) {
                 // Update view model.
-                viewModel.setPlaybackProgress(playbackProgress)
+                viewModel.updateForProgress(progress)
 
-                // Wait for next timestamp in gaze data.
-                val nextTimestamp = gazeData.keys.first { k -> k > playbackProgress }
-                delay((nextTimestamp - playbackProgress).toLong())
+                // Wait for specified delay.
+                delay(updateDelay.toLong())
 
-                // Set progress to next timestamp.
-                playbackProgress = nextTimestamp
+                // Update progress.
+                progress = audioPlayer.currentPosition
             }
 
             // Perform final view model update.
-            viewModel.setPlaybackProgress(playbackProgress)
-            viewModel.pausePlayback()
+            viewModel.updateForProgress(progress)
         }
     }
 
     // Pause playback.
     fun pausePlayback() {
         if (playback?.isActive == true) {
+            audioPlayer.pause()
             playback?.cancel()
         }
     }
@@ -80,6 +92,7 @@ class SeeSoGazePlayer(
     // Pause and prevent playback until unblocked.
     fun blockPlayback() {
         if (playback?.isActive == true) {
+            audioPlayer.pause()
             playback?.cancel()
             resumePlaybackOnUnblock = true
         }
@@ -97,10 +110,18 @@ class SeeSoGazePlayer(
         }
     }
 
+    // Stop playback.
+    fun stopPlayback() {
+        if (playback?.isActive == true) {
+            playback?.cancel()
+        }
+        audioPlayer.stop()
+    }
+
     // Adjust a given timestamp to be within allowed limits.
     private fun getValidTimestamp(timestamp : Int) : Int {
         return if (timestamp < 0) 0
-        else if (timestamp > lastTimestamp) lastTimestamp
+        else if (timestamp > maxProgress) maxProgress
         else timestamp
     }
 }

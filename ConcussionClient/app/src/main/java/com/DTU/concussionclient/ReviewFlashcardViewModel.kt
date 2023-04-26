@@ -1,6 +1,7 @@
 package com.DTU.concussionclient
 
 import android.app.Application
+import android.media.MediaPlayer
 import androidx.lifecycle.AndroidViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -15,21 +16,28 @@ data class SeeSoUiState(
     val indicatorY : Float? = null
 )
 
-class SeeSoViewModel(application: Application) : AndroidViewModel(application) {
-    private var gazePlayer : SeeSoGazePlayer? = null
+class ReviewFlashcardViewModel(application: Application) : AndroidViewModel(application) {
+    private var audioGazePlayer : AudioGazePlayer? = null
     private val _uiState = MutableStateFlow(SeeSoUiState())
 
     val uiState : StateFlow<SeeSoUiState> = _uiState.asStateFlow()
 
-    fun initGazePlayer(gazeData : Map<Int, Pair<Float, Float>>?) {
+    fun initGazePlayer() {
+        val concussionApplication = getApplication<ConcussionApplication>()
+        val gazeRecorder = concussionApplication.gazeRecorder
+        val gazeData = gazeRecorder.getGazeData()
+        val audioPlayer = MediaPlayer()
+        audioPlayer.setDataSource(concussionApplication.audioFilePath)
+        audioPlayer.prepare()
+
         if (!gazeData.isNullOrEmpty()) {
-            gazePlayer = SeeSoGazePlayer(this, gazeData)
+            audioGazePlayer = AudioGazePlayer(this, gazeData, audioPlayer)
 
             _uiState.update { currentState ->
                 currentState.copy(
                     isPlaying = false,
                     playProgress = 0,
-                    maxProgress = gazeData.keys.last(),
+                    maxProgress = audioPlayer.duration,
                     indicatorX = gazeData[0]?.first,
                     indicatorY = gazeData[0]?.second
                 )
@@ -45,43 +53,34 @@ class SeeSoViewModel(application: Application) : AndroidViewModel(application) {
         }
 
         if (uiState.value.isPlaying) {
-            gazePlayer?.startPlayback()
+            audioGazePlayer?.startPlayback()
         }
         else {
-            gazePlayer?.pausePlayback()
+            audioGazePlayer?.pausePlayback()
         }
-    }
-
-    fun startPlayback() {
-        _uiState.update { currentState ->
-            currentState.copy(
-                isPlaying = true
-            )
-        }
-        gazePlayer?.startPlayback()
-    }
-
-    fun pausePlayback() {
-        _uiState.update { currentState ->
-            currentState.copy(
-                isPlaying = false
-            )
-        }
-        gazePlayer?.pausePlayback()
     }
 
     fun blockPlayback() {
-        gazePlayer?.blockPlayback()
+        audioGazePlayer?.blockPlayback()
     }
 
     fun unblockPlayback() {
-        gazePlayer?.unblockPlayback()
+        audioGazePlayer?.unblockPlayback()
     }
 
-    fun setPlaybackProgress(progress : Int) {
-        val coords = gazePlayer?.setTimestamp(progress)
+    fun stopPlayback() {
+        audioGazePlayer?.stopPlayback()
+    }
+
+    fun seekTo(timestamp : Int) {
+        audioGazePlayer?.seekTo(timestamp)
+    }
+
+    fun updateForProgress(progress : Int) {
+        val coords = audioGazePlayer?.getCoords(progress)
         _uiState.update { currentState ->
             currentState.copy(
+                isPlaying = if (progress < (currentState.maxProgress ?: 0)) currentState.isPlaying else false,
                 playProgress = progress,
                 indicatorX = coords?.first,
                 indicatorY = coords?.second
