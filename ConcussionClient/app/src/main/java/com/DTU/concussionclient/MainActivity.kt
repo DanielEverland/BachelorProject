@@ -1,16 +1,21 @@
 package com.DTU.concussionclient
 
-import android.content.Context
+import android.Manifest
 import android.content.pm.ActivityInfo
 import androidx.appcompat.app.AppCompatActivity
+import android.content.pm.PackageManager
 import android.os.Bundle
-import android.util.AttributeSet
-import android.util.Log
-import android.view.View
+import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
-import kotlin.math.log
+
 
 class MainActivity : AppCompatActivity() {
+    private val permissions = arrayOf(Manifest.permission.CAMERA)
+    private val permissionRequestCode = 1000
+
+    private lateinit var postInjuryTestFragment : FrontPageTestButtonFragment
+    private lateinit var baselineTestFragment : FrontPageTestButtonFragment
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
@@ -20,6 +25,59 @@ class MainActivity : AppCompatActivity() {
 
         // Hides the title bar
         supportActionBar?.hide()
+
+        checkPermission()
+    }
+
+    private fun checkPermission() {
+        if (!hasPermissions(permissions)) {
+            requestPermissions(permissions, permissionRequestCode)
+        }
+        else {
+            onPermissionGranted(true)
+        }
+    }
+
+    private fun onPermissionGranted(isGranted : Boolean) {
+        if (isGranted) {
+                (application as ConcussionApplication).initGazeRecorder(::enableTestButtons)
+        }
+    }
+
+    private fun enableTestButtons() {
+        runOnUiThread {
+            postInjuryTestFragment.enableTestButton(true)
+            baselineTestFragment.enableTestButton(true)
+        }
+    }
+
+    private fun hasPermissions(permissions : Array<String>) : Boolean {
+        for (permission in permissions) {
+            val result = ContextCompat.checkSelfPermission(this, permission)
+            if (result == PackageManager.PERMISSION_DENIED) {
+                return false
+            }
+        }
+
+        return true
+    }
+
+    override fun onRequestPermissionsResult(
+        requestCode: Int,
+        permissions: Array<String?>,
+        grantResults: IntArray
+    ) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults)
+        when (requestCode) {
+            permissionRequestCode -> if (grantResults.size > 0) {
+                val cameraPermissionAccepted = grantResults[0] == PackageManager.PERMISSION_GRANTED
+                if (cameraPermissionAccepted) {
+                    onPermissionGranted(true)
+                } else {
+                    onPermissionGranted(false)
+                }
+            }
+        }
     }
 
     override fun onAttachFragment(fragment: Fragment) {
@@ -32,6 +90,7 @@ class MainActivity : AppCompatActivity() {
                 "Has an accident or injury left you dizzy, disoriented, or unconscious? " +
                         "Assess your injury and seek a medical professional immediately!",
                 R.drawable.post_injury_button)
+            postInjuryTestFragment = fragment as FrontPageTestButtonFragment
         }
         else if(fragment.id == R.id.baselineFragment)
         {
@@ -40,6 +99,7 @@ class MainActivity : AppCompatActivity() {
                 "It’s important to regularly establish a baseline of your performance in" +
                         "order to accurately assess your injury in case of an accident",
                 R.drawable.baseline_button)
+            baselineTestFragment = fragment as FrontPageTestButtonFragment
         }
         else if(fragment.id == R.id.concussionFooter)
         {

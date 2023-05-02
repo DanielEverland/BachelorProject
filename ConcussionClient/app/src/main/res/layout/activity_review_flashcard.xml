@@ -23,17 +23,37 @@
                 android:layout_height="match_parent"
                 android:orientation="vertical">
 
-                <androidx.fragment.app.FragmentContainerView
-                    android:id="@+id/flashcardFragment"
-                    android:name="com.DTU.concussionclient.ReviewFlashcardFragment"
+                <androidx.constraintlayout.widget.ConstraintLayout
+                    android:id="@+id/flashcardContainer"
                     android:layout_width="match_parent"
                     android:layout_height="match_parent"
                     android:layout_marginLeft="100dp"
                     android:layout_marginRight="100dp"
-                    android:layout_weight="1"
-                    tools:layout="@layout/content_review_flashcard" />
+                    android:layout_weight="1">
+
+                    <ImageView
+                        android:id="@+id/gazeIndicatorView"
+                        android:layout_width="100dp"
+                        android:layout_height="100dp"
+                        android:layout_marginStart="-50dp"
+                        android:layout_marginTop="-50dp"
+                        android:visibility="gone"
+                        app:layout_constraintStart_toStartOf="parent"
+                        app:layout_constraintTop_toTopOf="parent"
+                        app:srcCompat="@drawable/gaze_indicator" />
+
+                    <androidx.fragment.app.FragmentContainerView
+                        android:id="@+id/flashcardFragment"
+                        android:name="com.DTU.concussionclient.ReviewFlashcardFragment"
+                        android:layout_width="match_parent"
+                        android:layout_height="match_parent"
+                        android:layout_weight="1"
+                        tools:layout="@layout/content_review_flashcard" />
+
+                </androidx.constraintlayout.widget.ConstraintLayout>
 
                 <LinearLayout
+                    android:id="@+id/playbackControlContainer"
                     android:layout_width="match_parent"
                     android:layout_height="match_parent"
                     android:layout_weight="4"
@@ -44,37 +64,38 @@
                         android:layout_height="match_parent" />
 
                     <ImageButton
-                        android:id="@+id/imageButton"
+                        android:id="@+id/playPauseButton"
                         android:layout_width="50dp"
                         android:layout_height="50dp"
                         android:layout_gravity="center_vertical"
-                        android:background="@drawable/play_button"
-                        android:contentDescription="play" />
+                        android:background="@drawable/circle_button"
+                        android:contentDescription="play"
+                        android:src="@drawable/play_icon" />
 
                     <Space
                         android:layout_width="25dp"
                         android:layout_height="match_parent" />
 
                     <TextView
-                        android:id="@+id/textView"
+                        android:id="@+id/currentTimeText"
                         android:layout_width="33dp"
                         android:layout_height="wrap_content"
                         android:layout_gravity="center"
-                        android:text="0:05"
+                        android:text="0:00"
                         android:textAlignment="textEnd" />
 
                     <SeekBar
-                        android:id="@+id/seekBar"
+                        android:id="@+id/playbackBar"
                         android:layout_width="match_parent"
                         android:layout_height="match_parent"
                         android:layout_weight="1" />
 
                     <TextView
-                        android:id="@+id/textView2"
+                        android:id="@+id/maxTimeText"
                         android:layout_width="33dp"
                         android:layout_height="wrap_content"
                         android:layout_gravity="center"
-                        android:text="0:19" />
+                        android:text="0:00" />
 
                     <Space
                         android:layout_width="100dp"

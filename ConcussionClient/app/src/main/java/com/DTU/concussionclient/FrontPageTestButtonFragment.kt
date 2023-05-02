@@ -2,7 +2,6 @@ package com.DTU.concussionclient
 
 import android.content.Intent
 import android.os.Bundle
-import android.util.Log
 import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
@@ -26,6 +25,8 @@ class FrontPageTestButtonFragment : Fragment() {
     private var bodyText: String? = null
     private var imageResource: Int? = null
 
+    lateinit var testButton : ImageButton
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
@@ -41,7 +42,7 @@ class FrontPageTestButtonFragment : Fragment() {
         savedInstanceState: Bundle?
     ): View? {
         // Inflate the layout for this fragment
-        var root = inflater.inflate(R.layout.fragment_front_page_test_button, container, false)
+        val root = inflater.inflate(R.layout.fragment_front_page_test_button, container, false)
 
         root.findViewById<TextView>(R.id.testButtonFragmentTitle).text = titleText
         root.findViewById<TextView>(R.id.testButtonFragmentText).text = bodyText
@@ -50,13 +51,21 @@ class FrontPageTestButtonFragment : Fragment() {
             root.findViewById<ImageButton>(R.id.testButtonFragmentButton).setImageResource(it)
         }
 
-        root.findViewById<ImageButton>(R.id.testButtonFragmentButton).setOnClickListener {
+        testButton = root.findViewById(R.id.testButtonFragmentButton)
+        testButton.setOnClickListener {
             val newIntent = Intent(activity, TestActivity::class.java)
             newIntent.putExtra("FlashcardIndex", 0)
             startActivity(newIntent)
         }
+        enableTestButton(false)
 
         return root
+    }
+
+    fun enableTestButton(isEnabled : Boolean) {
+        testButton.isClickable = isEnabled
+        testButton.isFocusable = isEnabled
+        testButton.alpha = if (isEnabled) 1.0F else 0.5F
     }
 
     companion object {
