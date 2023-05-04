@@ -1,26 +1,25 @@
 package com.DTU.concussionclient
 
-import android.app.Activity
-import android.content.Context
+import android.Manifest
 import android.content.pm.ActivityInfo
 import androidx.appcompat.app.AppCompatActivity
+import android.content.pm.PackageManager
 import android.os.Bundle
-import android.util.AttributeSet
-import android.util.Log
-import android.view.View
 import android.widget.Button
 import android.widget.TextView
-import androidx.core.content.ContentProviderCompat.requireContext
+import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
-import kotlin.math.log
 
 class MainActivity : AppCompatActivity() {
-
     private val concussionApplication get() = application as ConcussionApplication
     private val preferences get() = concussionApplication.getPreferences(this)
     private val hasBaseline get() = !preferences.getFloat("Baseline", Float.NaN).isNaN()
 
-    private var screeningButton: FrontPageTestButtonFragment? = null
+    private val permissions = arrayOf(Manifest.permission.CAMERA)
+    private val permissionRequestCode = 1000
+
+    private lateinit var postInjuryTestFragment : FrontPageTestButtonFragment
+    private lateinit var baselineTestFragment : FrontPageTestButtonFragment
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -42,6 +41,58 @@ class MainActivity : AppCompatActivity() {
         }
 
         updateDebugData()
+        checkPermission()
+    }
+
+    private fun checkPermission() {
+        if (!hasPermissions(permissions)) {
+            requestPermissions(permissions, permissionRequestCode)
+        }
+        else {
+            onPermissionGranted(true)
+        }
+    }
+
+    private fun onPermissionGranted(isGranted : Boolean) {
+        if (isGranted) {
+                (application as ConcussionApplication).initGazeRecorder(::enableTestButtons)
+        }
+    }
+
+    private fun enableTestButtons() {
+        runOnUiThread {
+            postInjuryTestFragment.enableTestButton(true)
+            baselineTestFragment.enableTestButton(true)
+        }
+    }
+
+    private fun hasPermissions(permissions : Array<String>) : Boolean {
+        for (permission in permissions) {
+            val result = ContextCompat.checkSelfPermission(this, permission)
+            if (result == PackageManager.PERMISSION_DENIED) {
+                return false
+            }
+        }
+
+        return true
+    }
+
+    override fun onRequestPermissionsResult(
+        requestCode: Int,
+        permissions: Array<String?>,
+        grantResults: IntArray
+    ) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults)
+        when (requestCode) {
+            permissionRequestCode -> if (grantResults.size > 0) {
+                val cameraPermissionAccepted = grantResults[0] == PackageManager.PERMISSION_GRANTED
+                if (cameraPermissionAccepted) {
+                    onPermissionGranted(true)
+                } else {
+                    onPermissionGranted(false)
+                }
+            }
+        }
     }
 
     override fun onAttachFragment(fragment: Fragment) {
@@ -57,7 +108,7 @@ class MainActivity : AppCompatActivity() {
                 isScreening = true,
                 isEnabled = hasBaseline)
 
-            screeningButton = fragment as FrontPageTestButtonFragment
+            postInjuryTestFragment = fragment as FrontPageTestButtonFragment
         }
         else if(fragment.id == R.id.baselineFragment)
         {
@@ -67,8 +118,8 @@ class MainActivity : AppCompatActivity() {
                         "order to accurately assess your injury in case of an accident",
                 R.drawable.baseline_button,
                 isScreening = false,
-                isEnabled = true
-            )
+                isEnabled = true)
+            baselineTestFragment = fragment as FrontPageTestButtonFragment
         }
     }
 

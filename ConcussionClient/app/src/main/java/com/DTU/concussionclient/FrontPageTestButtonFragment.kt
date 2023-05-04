@@ -7,7 +7,6 @@ import android.graphics.BlendMode
 import android.graphics.Color
 import android.os.Build
 import android.os.Bundle
-import android.util.Log
 import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
@@ -38,7 +37,7 @@ class FrontPageTestButtonFragment : Fragment() {
 
     private val concussionApplication get() = (context as Activity).application as ConcussionApplication
 
-    private var button: ImageButton? = null
+    lateinit var testButton : ImageButton
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -57,26 +56,26 @@ class FrontPageTestButtonFragment : Fragment() {
         savedInstanceState: Bundle?
     ): View? {
         // Inflate the layout for this fragment
-        var root = inflater.inflate(R.layout.fragment_front_page_test_button, container, false)
+        val root = inflater.inflate(R.layout.fragment_front_page_test_button, container, false)
 
         root.findViewById<TextView>(R.id.testButtonFragmentTitle).text = titleText
         root.findViewById<TextView>(R.id.testButtonFragmentText).text = bodyText
 
-        button = root.findViewById(R.id.testButtonFragmentButton)
+        testButton = root.findViewById(R.id.testButtonFragmentButton)
 
         imageResource?.let {
-            button!!.setImageResource(it)
+            testButton.setImageResource(it)
         }
 
         if (!isEnabled!!) {
-            button!!.isEnabled = false
-            button!!.drawable.alpha = 50
+            testButton.isEnabled = false
+            testButton.drawable.alpha = 50
         }
         else {
-            button!!.drawable.alpha = 255
+            testButton.drawable.alpha = 255
         }
 
-        button!!.setOnClickListener {
+        testButton.setOnClickListener {
             concussionApplication.initializeNewSession(isScreening!!)
 
             val newIntent = Intent(activity, TestActivity::class.java)
@@ -84,8 +83,15 @@ class FrontPageTestButtonFragment : Fragment() {
             newIntent.putExtra("IsScreening", isScreening!!)
             startActivity(newIntent)
         }
+        enableTestButton(false)
 
         return root
+    }
+
+    fun enableTestButton(isEnabled : Boolean) {
+        testButton.isClickable = isEnabled
+        testButton.isFocusable = isEnabled
+        testButton.alpha = if (isEnabled) 1.0F else 0.5F
     }
 
     companion object {

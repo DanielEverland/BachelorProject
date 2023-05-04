@@ -10,6 +10,7 @@ class ConcussionApplication : Application() {
     // Contains information regarding a test from the moment the given test button is pressed until
     // the test has concluded
     data class TestingSession(var instance: TestingInstance, var baselineTempDataCache: BaselineTempDataCache?) {
+
     }
 
     // Contains information regarding a single instance of the King-Devick test, from the first
@@ -40,6 +41,7 @@ class ConcussionApplication : Application() {
     public val getInstance get() = getSession.instance
     public val getIsScreening get() = isScreening!!
 
+    lateinit var gazeRecorder : SeeSoGazeRecorder
     private var session: TestingSession? = null
     private var isScreening: Boolean? = null
 
@@ -80,5 +82,12 @@ class ConcussionApplication : Application() {
 
     private fun createNewInstance() : TestingInstance {
         return TestingInstance(mutableMapOf())
+    }
+
+    fun initGazeRecorder(onInitSuccess : () -> Unit) {
+        gazeRecorder = SeeSoGazeRecorder(applicationContext, onInitSuccess, ::onRecorderInitFail)
+    }
+
+    private fun onRecorderInitFail(error : String) {
     }
 }
