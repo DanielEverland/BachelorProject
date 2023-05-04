@@ -1,5 +1,6 @@
 package com.DTU.concussionclient
 
+import android.app.Activity
 import android.os.Bundle
 import android.util.Log
 import android.view.LayoutInflater
@@ -25,6 +26,8 @@ class FullscreenPopupFragment : Fragment() {
     }
 
     private fun onClicked() {
+        (context as Activity).findViewById<View>(R.id.debugNextFlashcardButton).isEnabled = true
+
         requireActivity().supportFragmentManager.beginTransaction().remove(this).commit();
     }
 }

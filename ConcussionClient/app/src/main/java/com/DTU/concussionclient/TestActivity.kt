@@ -2,6 +2,7 @@ package com.DTU.concussionclient
 
 import android.content.Intent
 import android.os.Bundle
+import android.view.View
 import android.widget.Button
 import androidx.appcompat.app.AppCompatActivity
 import androidx.constraintlayout.widget.ConstraintLayout
@@ -82,5 +83,9 @@ class TestActivity : AppCompatActivity() {
         val ft = supportFragmentManager.beginTransaction()
         ft.add(R.id.fullscreenPopupLayout, popup)
         ft.commitAllowingStateLoss()
+
+        val continueButton = findViewById<Button>(R.id.debugNextFlashcardButton)
+        continueButton.text = "Continue"
+        continueButton.isEnabled = false
     }
 }

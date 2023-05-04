@@ -17,6 +17,7 @@
 
     <Button
         android:id="@+id/clearDataButton"
+        style="@style/Widget.Theme.ConcussionClient.ConcussionButton"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="Clear Saved Data"
@@ -29,7 +30,9 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:gravity="center"
-        android:orientation="horizontal">
+        android:orientation="horizontal"
+        tools:layout_editor_absoluteX="0dp"
+        tools:layout_editor_absoluteY="0dp">
 
         <androidx.fragment.app.FragmentContainerView
             android:id="@+id/postinjuryFragment"

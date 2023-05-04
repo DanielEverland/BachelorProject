@@ -10,6 +10,11 @@
         <item name="android:buttonBarStyle">?android:attr/buttonBarStyle</item>
     </style>
 
+    <style name="Widget.Theme.ConcussionClient.ConcussionButton" parent="">
+        <item name="backgroundTint">#4B3552</item>
+        <item name="android:textColor">@color/off_white</item>
+    </style>
+
     <style name="Widget.Theme.ConcussionClient.ActionBar.Fullscreen" parent="Widget.AppCompat.ActionBar">
         <item name="android:background">@color/black_overlay</item>
     </style>
