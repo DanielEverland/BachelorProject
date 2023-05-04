@@ -39,8 +39,6 @@ class FrontPageTestButtonFragment : Fragment() {
 
     lateinit var testButton : ImageButton
 
-    lateinit var testButton : ImageButton
-
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 

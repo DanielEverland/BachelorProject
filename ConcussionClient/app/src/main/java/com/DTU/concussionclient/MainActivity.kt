@@ -5,11 +5,16 @@ import android.content.pm.ActivityInfo
 import androidx.appcompat.app.AppCompatActivity
 import android.content.pm.PackageManager
 import android.os.Bundle
+import android.widget.Button
+import android.widget.TextView
 import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
 
-
 class MainActivity : AppCompatActivity() {
+    private val concussionApplication get() = application as ConcussionApplication
+    private val preferences get() = concussionApplication.getPreferences(this)
+    private val hasBaseline get() = !preferences.getFloat("Baseline", Float.NaN).isNaN()
+
     private val permissions = arrayOf(Manifest.permission.CAMERA)
     private val permissionRequestCode = 1000
 
