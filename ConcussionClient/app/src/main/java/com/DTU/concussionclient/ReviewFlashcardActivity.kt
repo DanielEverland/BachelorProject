@@ -127,10 +127,6 @@ class ReviewFlashcardActivity : AppCompatActivity(), FlashcardFragment.OnClickLi
             }
         }
 
-        findViewById<Button>(R.id.nextErrorButton).setOnClickListener {
-            selectNext()
-        }
-
         getFlashcardData.elapsedTime = intent.extras!!.getFloat("TimeElapsed")
         val elapsedtimeEditText = findViewById<EditText>(R.id.elapsedTimeEditText)
         elapsedtimeEditText.setText(getTimeElapsed.toString())
