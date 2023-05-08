@@ -2,6 +2,7 @@ package com.DTU.concussionclient
 
 import android.content.Intent
 import android.os.Bundle
+import android.view.View
 import android.widget.Button
 import androidx.appcompat.app.AppCompatActivity
 import androidx.constraintlayout.widget.ConstraintLayout
@@ -11,6 +12,7 @@ import kotlin.random.Random
 
 class TestActivity : AppCompatActivity() {
 
+    private val getInstance get() = concussionApplication.getInstance
     private val getFlashcardIndex get() = intent.extras!!.getInt("FlashcardIndex")
     private val isDemonstrationCard get() = getFlashcardIndex == 0
     private val seed: Int = Random.nextInt();
@@ -28,10 +30,7 @@ class TestActivity : AppCompatActivity() {
         // Hides the title bar
         supportActionBar?.hide()
 
-        if(isDemonstrationCard) {
-            concussionApplication.initializeNewSession()
-        }
-        concussionApplication.getSession.createFlashcardData(getFlashcardIndex)
+        getInstance.createFlashcardData(getFlashcardIndex)
 
         findViewById<Button>(R.id.debugNextFlashcardButton).setOnClickListener {
             concussionApplication.gazeRecorder.stopTracking()
@@ -79,11 +78,13 @@ class TestActivity : AppCompatActivity() {
     }
 
     private fun createFullscreenPopup() {
-        val layout = findViewById<ConstraintLayout>(R.id.fullscreenPopupLayout)
-
         val popup = FullscreenPopupFragment()
         val ft = supportFragmentManager.beginTransaction()
         ft.add(R.id.fullscreenPopupLayout, popup)
         ft.commitAllowingStateLoss()
+
+        val continueButton = findViewById<Button>(R.id.debugNextFlashcardButton)
+        continueButton.text = "Continue"
+        continueButton.isEnabled = false
     }
 }

@@ -22,4 +22,20 @@
 
     <string name="hello_first_fragment">Hello first fragment</string>
     <string name="hello_second_fragment">Hello second fragment. Arg: %1$s</string>
+    <string name="title_activity_test_endscreen">TestEndscreenActivity</string>
+    <string name="diagnose_text_concussion">
+        This application is in no way able to diagnose concussions or other types of\n
+        brain injury, but your score is significantly worse than your baseline score,\n
+        and as such you should consult a medical professional without delay.
+    </string>
+    <string name="diagnose_text_healthy">
+        This application is in no way able to diagnose concussions or other types of\n
+        brain injury. Your score is better than your baseline score, but that does not\n
+        mean you do not have a medical condition. Seek medical attention if you suspect\n
+        anything might be wrong.
+    </string>
+    <string name="baseline_explanation">
+        The baseline threshold is based on your baseline tests.\n
+        Any score higher than this is cause for seeking medical attention
+    </string>
 </resources>

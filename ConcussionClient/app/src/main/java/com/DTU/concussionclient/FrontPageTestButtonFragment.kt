@@ -1,6 +1,11 @@
 package com.DTU.concussionclient
 
+import android.app.Activity
 import android.content.Intent
+import android.content.res.Resources.Theme
+import android.graphics.BlendMode
+import android.graphics.Color
+import android.os.Build
 import android.os.Bundle
 import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
@@ -8,12 +13,15 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.ImageButton
 import android.widget.TextView
+import androidx.core.content.ContextCompat
 
 // TODO: Rename parameter arguments, choose names that match
 // the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
 private const val TitleArg = "TitleText"
 private const val BodyArg = "BodyText"
 private const val ImageArg = "ImageResource"
+private const val IsScreeningArg = "IsScreening"
+private const val IsEnabledArg = "IsEnabled"
 
 /**
  * A simple [Fragment] subclass.
@@ -24,6 +32,10 @@ class FrontPageTestButtonFragment : Fragment() {
     private var titleText: String? = null
     private var bodyText: String? = null
     private var imageResource: Int? = null
+    private var isScreening: Boolean? = null
+    private var isEnabled: Boolean? = null
+
+    private val concussionApplication get() = (context as Activity).application as ConcussionApplication
 
     lateinit var testButton : ImageButton
 
@@ -34,6 +46,8 @@ class FrontPageTestButtonFragment : Fragment() {
             titleText = it.getString(TitleArg)
             bodyText = it.getString(BodyArg)
             imageResource = it.getInt(ImageArg)
+            isScreening = it.getBoolean(IsScreeningArg)
+            isEnabled = it.getBoolean(IsEnabledArg)
         }
     }
 
@@ -47,12 +61,23 @@ class FrontPageTestButtonFragment : Fragment() {
         root.findViewById<TextView>(R.id.testButtonFragmentTitle).text = titleText
         root.findViewById<TextView>(R.id.testButtonFragmentText).text = bodyText
 
+        testButton = root.findViewById(R.id.testButtonFragmentButton)
+
         imageResource?.let {
-            root.findViewById<ImageButton>(R.id.testButtonFragmentButton).setImageResource(it)
+            testButton.setImageResource(it)
         }
 
-        testButton = root.findViewById(R.id.testButtonFragmentButton)
+        if (!isEnabled!!) {
+            testButton.isEnabled = false
+            testButton.drawable.alpha = 50
+        }
+        else {
+            testButton.drawable.alpha = 255
+        }
+
         testButton.setOnClickListener {
+            concussionApplication.initializeNewSession(isScreening!!)
+
             val newIntent = Intent(activity, TestActivity::class.java)
             newIntent.putExtra("FlashcardIndex", 0)
             startActivity(newIntent)
@@ -79,12 +104,14 @@ class FrontPageTestButtonFragment : Fragment() {
          */
         // TODO: Rename and change types and number of parameters
         @JvmStatic
-        fun newInstance(param1: String, param2: String, param3: Int) =
+        fun newInstance(param1: String, param2: String, param3: Int, isScreening: Boolean, isEnabled: Boolean) =
             FrontPageTestButtonFragment().apply {
                 arguments = Bundle().apply {
                     putString(TitleArg, param1)
                     putString(BodyArg, param2)
                     putInt(ImageArg, param3)
+                    putBoolean(IsScreeningArg, isScreening)
+                    putBoolean(IsEnabledArg, isEnabled)
                 }
             }
     }
