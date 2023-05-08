@@ -1,4 +1,4 @@
- package com.DTU.concussionclient
+package com.DTU.concussionclient
 
 import android.Manifest
 import android.content.pm.ActivityInfo

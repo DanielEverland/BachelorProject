@@ -80,7 +80,6 @@ class FrontPageTestButtonFragment : Fragment() {
 
             val newIntent = Intent(activity, TestActivity::class.java)
             newIntent.putExtra("FlashcardIndex", 0)
-            newIntent.putExtra("IsScreening", isScreening!!)
             startActivity(newIntent)
         }
         enableTestButton(false)

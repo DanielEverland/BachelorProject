@@ -43,7 +43,6 @@ class EndscreenFragment_Baseline : Fragment() {
 
                 val newIntent = Intent(activity, TestActivity::class.java)
                 newIntent.putExtra("FlashcardIndex", 0)
-                newIntent.putExtra("IsScreening", false)
                 startActivity(newIntent)
             }
             else {

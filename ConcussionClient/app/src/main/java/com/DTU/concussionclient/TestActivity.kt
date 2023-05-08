@@ -13,7 +13,6 @@ import kotlin.random.Random
 class TestActivity : AppCompatActivity() {
 
     private val getInstance get() = concussionApplication.getInstance
-    private val isScreening get() = intent.extras!!.getBoolean("IsScreening")
     private val getFlashcardIndex get() = intent.extras!!.getInt("FlashcardIndex")
     private val isDemonstrationCard get() = getFlashcardIndex == 0
     private val seed: Int = Random.nextInt();
