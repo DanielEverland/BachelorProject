@@ -11,7 +11,7 @@ class AudioGazePlayer(
     private val viewModel : ReviewFlashcardViewModel,
 
     // Map of timestamps and gaze coordinates.
-    private val gazeData : Map<Int, Pair<Float, Float>>,
+    private val gazeData : Map<Int, Pair<Float, Float>>?,
 
     // Media player for voice recording.
     private val audioPlayer : MediaPlayer
@@ -25,6 +25,10 @@ class AudioGazePlayer(
 
     // Get coordinates for timestamp.
     fun getCoords(timestamp: Int) : Pair<Float, Float>? {
+        if (gazeData.isNullOrEmpty()) {
+            return null
+        }
+
         // Get valid timestamp.
         val validTimestamp = getValidTimestamp(timestamp)
 
@@ -33,8 +37,8 @@ class AudioGazePlayer(
 
         // If no coordinates, try to find latest timestamp within update delay.
         if (coords == null) {
-            val closestTimestamp = gazeData.keys.findLast { k -> k < validTimestamp - updateDelay } ?: 0
-            coords = gazeData[closestTimestamp]
+            val closestTimestamp = gazeData.keys.findLast { k -> k < validTimestamp - updateDelay }
+            coords = closestTimestamp?.let { gazeData[closestTimestamp] }
         }
 
         return coords

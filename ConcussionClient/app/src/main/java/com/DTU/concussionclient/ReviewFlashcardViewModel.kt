@@ -25,23 +25,21 @@ class ReviewFlashcardViewModel(application: Application) : AndroidViewModel(appl
     fun initGazePlayer() {
         val concussionApplication = getApplication<ConcussionApplication>()
         val gazeRecorder = concussionApplication.gazeRecorder
-        val gazeData = gazeRecorder.getGazeData()
+        val gazeData = gazeRecorder?.getGazeData()
         val audioPlayer = MediaPlayer()
         audioPlayer.setDataSource(concussionApplication.audioFilePath)
         audioPlayer.prepare()
 
-        if (!gazeData.isNullOrEmpty()) {
-            audioGazePlayer = AudioGazePlayer(this, gazeData, audioPlayer)
+        audioGazePlayer = AudioGazePlayer(this, gazeData, audioPlayer)
 
-            _uiState.update { currentState ->
-                currentState.copy(
-                    isPlaying = false,
-                    playProgress = 0,
-                    maxProgress = audioPlayer.duration,
-                    indicatorX = gazeData[0]?.first,
-                    indicatorY = gazeData[0]?.second
-                )
-            }
+        _uiState.update { currentState ->
+            currentState.copy(
+                isPlaying = false,
+                playProgress = 0,
+                maxProgress = audioPlayer.duration,
+                indicatorX = null,
+                indicatorY = null
+            )
         }
     }
 

@@ -33,10 +33,31 @@ class SeeSoGazeRecorder(
     private var flashcardYOffset : Int? = null
 
     // Gaze tracker fields.
-    private lateinit var gazeTracker : GazeTracker
+    private var gazeTracker : GazeTracker? = null
     private val oneEuroFilterManager = OneEuroFilterManager(2)
     private lateinit var gazeData : MutableMap<Int, Pair<Float, Float>>
     private var timestampOffset = 0L
+
+    private val errorDescriptions = mutableMapOf<InitializationErrorType, String>(
+        Pair(InitializationErrorType.ERROR_NONE, "ERROR_NONE: authentication is succeeded."),
+        Pair(InitializationErrorType.ERROR_INIT, "ERROR_INIT: failed initialization."),
+        Pair(InitializationErrorType.ERROR_CAMERA_PERMISSION, "ERROR_CAMERA_PERMISSION: failed to get camera permission."),
+        Pair(InitializationErrorType.AUTH_INVALID_KEY, "AUTH_INVALID_KEY: the license key is invalid."),
+        Pair(InitializationErrorType.AUTH_INVALID_ENV_USED_DEV_IN_PROD, "AUTH_INVALID_ENV_USED_DEV_IN_PROD: trying to use dev license key in prod environment."),
+        Pair(InitializationErrorType.AUTH_INVALID_ENV_USED_PROD_IN_DEV, "AUTH_INVALID_ENV_USED_PROD_IN_DEV: trying to use prod license key in dev environment."),
+        Pair(InitializationErrorType.AUTH_INVALID_PACKAGE_NAME, "AUTH_INVALID_PACKAGE_NAME: using wrong package name."),
+        Pair(InitializationErrorType.AUTH_INVALID_APP_SIGNATURE, "AUTH_INVALID_APP_SIGNATURE: using wrong application signature."),
+        Pair(InitializationErrorType.AUTH_EXCEEDED_FREE_TIER, "AUTH_EXCEEDED_FREE_TIER: the free usage limit is exceeded."),
+        Pair(InitializationErrorType.AUTH_DEACTIVATED_KEY, "AUTH_DEACTIVATED_KEY: trying to use deactivated license key."),
+        Pair(InitializationErrorType.AUTH_INVALID_ACCESS, "AUTH_INVALID_ACCESS: using invalid access method."),
+        Pair(InitializationErrorType.AUTH_UNKNOWN_ERROR, "AUTH_UNKNOWN_ERROR: unknown error from the host server."),
+        Pair(InitializationErrorType.AUTH_SERVER_ERROR, "AUTH_SERVER_ERROR: internal error from the host server."),
+        Pair(InitializationErrorType.AUTH_CANNOT_FIND_HOST, "AUTH_CANNOT_FIND_HOST: lost connection or using wrong host address."),
+        Pair(InitializationErrorType.AUTH_WRONG_LOCAL_TIME, "AUTH_WRONG_LOCAL_TIME: there is a gap between the device time and the server time."),
+        Pair(InitializationErrorType.AUTH_INVALID_KEY_FORMAT, "AUTH_INVALID_KEY_FORMAT: using wrong license key format."),
+        Pair(InitializationErrorType.AUTH_EXPIRE_KEY, "AUTH_EXPIRE_KEY: using expired license key."),
+        Pair(InitializationErrorType.ERROR_NOT_ADVANCED_TIER, "ERROR_NOT_ADVANCED_TIER: trying to use User Status Detector with basic production license key.")
+    )
 
     // On gaze tracker initialization.
     private val initializationCallback =
@@ -61,12 +82,12 @@ class SeeSoGazeRecorder(
         flashcardYOffset = yOffset
         gazeData = mutableMapOf()
         timestampOffset = System.currentTimeMillis()
-        gazeTracker.startTracking()
+        gazeTracker?.startTracking()
     }
 
     // Stop gaze tracking.
     fun stopTracking() {
-        gazeTracker.stopTracking()
+        gazeTracker?.stopTracking()
     }
 
     // Initialize gaze tracker.
@@ -80,10 +101,10 @@ class SeeSoGazeRecorder(
 
         // Set camera position.
         val cp = CameraPosition(modelName, screenOriginX, screenOriginY)
-        gazeTracker.addCameraPosition(cp)
+        this.gazeTracker?.addCameraPosition(cp)
 
         // Configure gaze tracker callback.
-        this.gazeTracker.setGazeCallback(gazeCallback)
+        this.gazeTracker?.setGazeCallback(gazeCallback)
 
         // Launch external init success callback.
         initSuccessCallback()
@@ -92,23 +113,10 @@ class SeeSoGazeRecorder(
     // On gaze tracker initialization failure.
     private fun initFail(error : InitializationErrorType) {
         // Determine error.
-        val err = when (error) {
-            // When initialization is failed.
-            InitializationErrorType.ERROR_INIT ->
-                "Initialization failed"
-
-            // When camera permission does not exists.
-            InitializationErrorType.ERROR_CAMERA_PERMISSION ->
-                "Required permission not granted"
-
-            // Gaze library initialization failure.
-            // It can ba caused by several reasons(i.e. Out of memory).
-            else ->
-                "init gaze library fail"
-        }
+        val errorDescription = errorDescriptions[error] ?: "Unknown error occurred."
 
         // Launch external init fail callback.
-        initFailCallback(err)
+        initFailCallback(errorDescription)
     }
 
     // On gaze tracker callback.

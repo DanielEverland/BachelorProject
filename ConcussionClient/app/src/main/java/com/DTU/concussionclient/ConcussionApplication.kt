@@ -5,7 +5,6 @@ import android.media.MediaRecorder
 import java.io.File
 import android.content.Context
 import android.content.SharedPreferences
-import java.util.prefs.Preferences
 import kotlin.math.min
 
 class ConcussionApplication : Application() {
@@ -38,8 +37,8 @@ class ConcussionApplication : Application() {
     data class FlashcardNumberData(val index: Int, val expectedValue: Int, var actualValue: Int) {
     }
 
-    lateinit var gazeRecorder : SeeSoGazeRecorder
-    private var gazeRecorderIsInitialized = false
+    var gazeRecorder : SeeSoGazeRecorder? = null
+    private var isGazeRecorderInitialized = false
     lateinit var audioRecorder : MediaRecorder
     val audioFilePath : String = File.createTempFile("kingdevick", ".mp3").path
     private var session: TestingSession? = null
@@ -49,7 +48,7 @@ class ConcussionApplication : Application() {
     public val getSession get() = session!!
     public val getInstance get() = getSession.instance
     public val getIsScreening get() = isScreening!!
-    public val getIsGazeRecorderInitialized get() = gazeRecorderIsInitialized
+    public val getIsGazeRecorderInitialized get() = isGazeRecorderInitialized
 
 
     fun getPreferences(context: Context) : SharedPreferences {
@@ -91,10 +90,19 @@ class ConcussionApplication : Application() {
         return TestingInstance(mutableMapOf())
     }
 
-    fun initGazeRecorder(onInitSuccess : () -> Unit) {
-        if (!gazeRecorderIsInitialized) {
-            gazeRecorderIsInitialized = true
-            gazeRecorder = SeeSoGazeRecorder(applicationContext, onInitSuccess, ::onRecorderInitFail)
+    fun initGazeRecorder(onInitSuccess : () -> Unit, onInitFail : (String) -> Unit) {
+        if (!isGazeRecorderInitialized) {
+            fun onSuccess() {
+                isGazeRecorderInitialized = true
+                onInitSuccess()
+            }
+
+            fun onFail(error : String) {
+                gazeRecorder = null
+                onInitFail(error)
+            }
+
+            gazeRecorder = SeeSoGazeRecorder(applicationContext, ::onSuccess, ::onFail)
         }
     }
 
@@ -105,8 +113,5 @@ class ConcussionApplication : Application() {
         audioRecorder.setAudioEncoder(MediaRecorder.AudioEncoder.AMR_NB)
         audioRecorder.setOutputFile(audioFilePath)
         audioRecorder.prepare()
-    }
-
-    private fun onRecorderInitFail(error : String) {
     }
 }

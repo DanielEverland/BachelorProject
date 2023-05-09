@@ -33,7 +33,7 @@ class TestActivity : AppCompatActivity() {
         getInstance.createFlashcardData(getFlashcardIndex)
 
         findViewById<Button>(R.id.debugNextFlashcardButton).setOnClickListener {
-            concussionApplication.gazeRecorder.stopTracking()
+            concussionApplication.gazeRecorder?.stopTracking()
             concussionApplication.audioRecorder.stop()
 
             var intent: Intent? = null
@@ -63,7 +63,7 @@ class TestActivity : AppCompatActivity() {
             fragmentContainerView.getLocationOnScreen(offset)
             startTime = System.currentTimeMillis()
             concussionApplication.audioRecorder.start()
-            concussionApplication.gazeRecorder.startTracking(
+            concussionApplication.gazeRecorder?.startTracking(
                 fragmentContainerView.width,
                 fragmentContainerView.height,
                 offset[0],
