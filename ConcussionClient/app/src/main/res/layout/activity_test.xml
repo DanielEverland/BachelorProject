@@ -7,14 +7,6 @@
     tools:context=".TestActivity">
 
 
-    <Button
-        android:id="@+id/debugNextFlashcardButton"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="Next"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="@+id/linearLayout2" />
-
     <LinearLayout
         android:id="@+id/linearLayout2"
         android:layout_width="match_parent"
@@ -44,6 +36,17 @@
         </FrameLayout>
     </LinearLayout>
 
+    <Button
+        android:id="@+id/debugNextFlashcardButton"
+        style="@style/Widget.Theme.ConcussionClient.ConcussionButton"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginEnd="15dp"
+        android:layout_marginBottom="5dp"
+        android:text="Finish"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="@+id/linearLayout2" />
+
     <androidx.constraintlayout.widget.ConstraintLayout
         android:id="@+id/fullscreenPopupLayout"
         android:layout_width="match_parent"
@@ -51,6 +54,6 @@
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent"/>
+        app:layout_constraintTop_toTopOf="parent" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

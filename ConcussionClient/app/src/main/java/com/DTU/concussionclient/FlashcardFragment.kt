@@ -44,7 +44,8 @@ open class FlashcardFragment : Fragment() {
     private var randomGenerator: Random? = null
     private var clickListener: OnClickListener? = null
     private val concussionApplication get() = (requireActivity().application!! as ConcussionApplication)
-    private val flashcardData get() = concussionApplication.getSession.getFlashcardData(flashcardIndex)
+    private val getInstance get() = concussionApplication.getInstance
+    private val flashcardData get() = getInstance.getFlashcardData(flashcardIndex)
     protected val numberData get() = flashcardData.numbers
     protected var numberUILookup: MutableMap<View, Int> = mutableMapOf()
     protected var numberIndexLookup: MutableMap<Int, View> = mutableMapOf()
@@ -160,7 +161,7 @@ open class FlashcardFragment : Fragment() {
             Log.i("FlashcardFragment", "Pressed Flashcard Number. Index: ${data.index}, Number: ${data.expectedValue}")
             clickListener?.onClick(data)
         }
-        numberData[numberIndex] = ConcussionApplication.FlashcardNumberData(numberIndex, newNumber, -1)
+        numberData[numberIndex] = ConcussionApplication.FlashcardNumberData(numberIndex, newNumber, newNumber)
         numberUILookup[newView] = numberIndex
         numberIndexLookup[numberIndex] = newView
 

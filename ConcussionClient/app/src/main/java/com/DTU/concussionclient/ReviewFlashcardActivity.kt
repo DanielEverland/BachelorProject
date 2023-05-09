@@ -20,17 +20,15 @@ import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
 import kotlinx.coroutines.launch
 
-class ReviewFlashcardActivity : AppCompatActivity(), FlashcardFragment.OnClickListener {
+class ReviewFlashcardActivity : AppCompatActivity() {
 
     private val seed get() = intent.extras!!.getInt("Seed")
     private val getFlashcardIndex get() = intent.extras!!.getInt("FlashcardIndex")
     private val getTimeElapsed get() = getFlashcardData.elapsedTime
     private val concussionApplication get() = (application as ConcussionApplication)
-    private val getFlashcardData get() = concussionApplication.getSession.flashcardData[getFlashcardIndex]!!
-    private val getFlashcardNumber get() = getFlashcardData.numbers[selectedIndex]!!
+    private val getFlashcardData get() = concussionApplication.getInstance.flashcardData[getFlashcardIndex]!!
+    private val isFinalFlashcard get() = getFlashcardIndex >= 3
 
-    private var actualNumberView: EditText? = null
-    private var flashcard: FlashcardFragment? = null
     private var selectedIndex = 0
 
     private lateinit var playbackControlContainer : LinearLayout
@@ -116,13 +114,15 @@ class ReviewFlashcardActivity : AppCompatActivity(), FlashcardFragment.OnClickLi
 
         findViewById<Button>(R.id.debugNextTestButton).setOnClickListener {
             viewModel.stopPlayback()
-            val intent = Intent(this, TestActivity::class.java)
-            intent.putExtra("FlashcardIndex", getFlashcardIndex + 1)
-            startActivity(intent)
-        }
-
-        findViewById<Button>(R.id.nextErrorButton).setOnClickListener {
-            selectNext()
+            if(isFinalFlashcard) {
+                val intent = Intent(this, TestEndscreenActivity::class.java)
+                startActivity(intent)
+            }
+            else {
+                val intent = Intent(this, TestActivity::class.java)
+                intent.putExtra("FlashcardIndex", getFlashcardIndex + 1)
+                startActivity(intent)
+            }
         }
 
         getFlashcardData.elapsedTime = intent.extras!!.getFloat("TimeElapsed")
@@ -131,22 +131,6 @@ class ReviewFlashcardActivity : AppCompatActivity(), FlashcardFragment.OnClickLi
         elapsedtimeEditText.doAfterTextChanged {
             if(!elapsedtimeEditText.text.isEmpty())
                 getFlashcardData.elapsedTime = elapsedtimeEditText.text.toString().toFloat()
-        }
-
-        actualNumberView = findViewById(R.id.actualNumber)
-        actualNumberView!!.doAfterTextChanged {
-            val newText = actualNumberView!!.text.toString()
-            if(newText.isEmpty())
-                return@doAfterTextChanged
-
-            if(newText.length > 1) {
-                actualNumberView!!.setText(newText[newText.length - 1].toString())
-                actualNumberView!!.setSelection(1)
-            }
-
-            getFlashcardNumber.actualValue = actualNumberView!!.text.toString().toInt()
-
-            flashcard!!.flashcardNumberDataUpdated(selectedIndex)
         }
     }
 
@@ -159,25 +143,6 @@ class ReviewFlashcardActivity : AppCompatActivity(), FlashcardFragment.OnClickLi
             bundle.putInt("Index", getFlashcardIndex)
             bundle.putInt("Seed", seed)
             fragment.arguments = bundle
-
-            flashcard = fragment as FlashcardFragment
-            flashcard!!.setOnClickListener(this)
         }
-    }
-
-    private fun setSelectedNumber(index: Int) {
-        val data = flashcard!!.getNumberData(index)
-
-        findViewById<TextView>(R.id.expectedNumber).text = data.expectedValue.toString()
-        findViewById<TextView>(R.id.actualNumber).text = data.actualValue.toString()
-    }
-
-    private fun selectNext() {
-        setSelectedNumber(++selectedIndex)
-    }
-
-    override fun onClick(data: ConcussionApplication.FlashcardNumberData) {
-        selectedIndex = data.index
-        setSelectedNumber(data.index)
     }
 }
