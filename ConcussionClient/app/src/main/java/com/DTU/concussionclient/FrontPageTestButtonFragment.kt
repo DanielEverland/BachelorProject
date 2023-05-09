@@ -82,7 +82,7 @@ class FrontPageTestButtonFragment : Fragment() {
             newIntent.putExtra("FlashcardIndex", 0)
             startActivity(newIntent)
         }
-        enableTestButton(false)
+        enableTestButton(concussionApplication.getIsGazeRecorderInitialized)
 
         return root
     }

@@ -38,16 +38,19 @@ class ConcussionApplication : Application() {
     data class FlashcardNumberData(val index: Int, val expectedValue: Int, var actualValue: Int) {
     }
 
-    public val getBaselineTempData get() = getSession.baselineTempDataCache!!
-    public val getSession get() = session!!
-    public val getInstance get() = getSession.instance
-    public val getIsScreening get() = isScreening!!
-
     lateinit var gazeRecorder : SeeSoGazeRecorder
+    private var gazeRecorderIsInitialized = false
     lateinit var audioRecorder : MediaRecorder
     val audioFilePath : String = File.createTempFile("kingdevick", ".mp3").path
     private var session: TestingSession? = null
     private var isScreening: Boolean? = null
+
+    public val getBaselineTempData get() = getSession.baselineTempDataCache!!
+    public val getSession get() = session!!
+    public val getInstance get() = getSession.instance
+    public val getIsScreening get() = isScreening!!
+    public val getIsGazeRecorderInitialized get() = gazeRecorderIsInitialized
+
 
     fun getPreferences(context: Context) : SharedPreferences {
         return context.getSharedPreferences("concussion", Context.MODE_PRIVATE)
@@ -89,7 +92,10 @@ class ConcussionApplication : Application() {
     }
 
     fun initGazeRecorder(onInitSuccess : () -> Unit) {
-        gazeRecorder = SeeSoGazeRecorder(applicationContext, onInitSuccess, ::onRecorderInitFail)
+        if (!gazeRecorderIsInitialized) {
+            gazeRecorderIsInitialized = true
+            gazeRecorder = SeeSoGazeRecorder(applicationContext, onInitSuccess, ::onRecorderInitFail)
+        }
     }
 
     fun initAudioRecorder() {
