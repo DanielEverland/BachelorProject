@@ -54,8 +54,8 @@ class ReviewFlashcardActivity : AppCompatActivity() {
         // Hides the title bar
         supportActionBar?.hide()
 
-        val viewModel : SeeSoViewModel by viewModels()
-        viewModel.initGazePlayer(concussionApplication.gazeRecorder.getGazeData())
+        val viewModel : ReviewFlashcardViewModel by viewModels()
+        viewModel.initGazePlayer()
         lifecycleScope.launch {
             repeatOnLifecycle(Lifecycle.State.STARTED) {
                 viewModel.uiState.collect {
@@ -99,7 +99,7 @@ class ReviewFlashcardActivity : AppCompatActivity() {
         playbackBar.setOnSeekBarChangeListener(object : SeekBar.OnSeekBarChangeListener {
             override fun onProgressChanged(seek: SeekBar?, progress: Int, fromUser: Boolean) {
                 if (fromUser) {
-                    viewModel.setPlaybackProgress(progress)
+                    viewModel.seekTo(progress)
                 }
             }
 
@@ -113,6 +113,7 @@ class ReviewFlashcardActivity : AppCompatActivity() {
         })
 
         findViewById<Button>(R.id.debugNextTestButton).setOnClickListener {
+            viewModel.stopPlayback()
             if(isFinalFlashcard) {
                 val intent = Intent(this, TestEndscreenActivity::class.java)
                 startActivity(intent)

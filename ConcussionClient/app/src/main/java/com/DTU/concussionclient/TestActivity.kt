@@ -15,7 +15,7 @@ class TestActivity : AppCompatActivity() {
     private val getInstance get() = concussionApplication.getInstance
     private val getFlashcardIndex get() = intent.extras!!.getInt("FlashcardIndex")
     private val isDemonstrationCard get() = getFlashcardIndex == 0
-    private val seed: Int = Random.nextInt();
+    private val seed: Int = Random.nextInt()
     private val concussionApplication get() = (application!! as ConcussionApplication)
     private var startTime: Long = 0
 
@@ -33,7 +33,6 @@ class TestActivity : AppCompatActivity() {
         getInstance.createFlashcardData(getFlashcardIndex)
 
         findViewById<Button>(R.id.debugNextFlashcardButton).setOnClickListener {
-            concussionApplication.gazeRecorder.stopTracking()
 
             var intent: Intent? = null
 
@@ -44,6 +43,8 @@ class TestActivity : AppCompatActivity() {
             }
             else
             {
+                concussionApplication.gazeRecorder?.stopTracking()
+                concussionApplication.audioRecorder.stop()
                 intent = Intent(this, ReviewFlashcardActivity::class.java)
                 intent.putExtra("FlashcardIndex", getFlashcardIndex)
                 intent.putExtra("Seed", seed)
@@ -53,18 +54,22 @@ class TestActivity : AppCompatActivity() {
             startActivity(intent)
         }
 
-        if (isDemonstrationCard)
+        if (isDemonstrationCard) {
             createFullscreenPopup()
-
-        fragmentContainerView.post {
-            val offset = IntArray(2)
-            fragmentContainerView.getLocationOnScreen(offset)
-            startTime = System.currentTimeMillis()
-            concussionApplication.gazeRecorder.startTracking(
-                fragmentContainerView.width,
-                fragmentContainerView.height,
-                offset[0],
-                offset[1])
+        }
+        else {
+            fragmentContainerView.post {
+                concussionApplication.initAudioRecorder()
+                val offset = IntArray(2)
+                fragmentContainerView.getLocationOnScreen(offset)
+                startTime = System.currentTimeMillis()
+                concussionApplication.audioRecorder.start()
+                concussionApplication.gazeRecorder?.startTracking(
+                    fragmentContainerView.width,
+                    fragmentContainerView.height,
+                    offset[0],
+                    offset[1])
+            }
         }
     }
 

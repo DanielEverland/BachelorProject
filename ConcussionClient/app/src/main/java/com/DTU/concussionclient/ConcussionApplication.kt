@@ -1,9 +1,10 @@
 package com.DTU.concussionclient
 
 import android.app.Application
+import android.media.MediaRecorder
+import java.io.File
 import android.content.Context
 import android.content.SharedPreferences
-import java.util.prefs.Preferences
 import kotlin.math.min
 
 class ConcussionApplication : Application() {
@@ -36,14 +37,19 @@ class ConcussionApplication : Application() {
     data class FlashcardNumberData(val index: Int, val expectedValue: Int, var actualValue: Int) {
     }
 
+    var gazeRecorder : SeeSoGazeRecorder? = null
+    private var isGazeRecorderInitialized = false
+    lateinit var audioRecorder : MediaRecorder
+    val audioFilePath : String = File.createTempFile("kingdevick", ".mp3").path
+    private var session: TestingSession? = null
+    private var isScreening: Boolean? = null
+
     public val getBaselineTempData get() = getSession.baselineTempDataCache!!
     public val getSession get() = session!!
     public val getInstance get() = getSession.instance
     public val getIsScreening get() = isScreening!!
+    public val getIsGazeRecorderInitialized get() = isGazeRecorderInitialized
 
-    lateinit var gazeRecorder : SeeSoGazeRecorder
-    private var session: TestingSession? = null
-    private var isScreening: Boolean? = null
 
     fun getPreferences(context: Context) : SharedPreferences {
         return context.getSharedPreferences("concussion", Context.MODE_PRIVATE)
@@ -84,10 +90,28 @@ class ConcussionApplication : Application() {
         return TestingInstance(mutableMapOf())
     }
 
-    fun initGazeRecorder(onInitSuccess : () -> Unit) {
-        gazeRecorder = SeeSoGazeRecorder(applicationContext, onInitSuccess, ::onRecorderInitFail)
+    fun initGazeRecorder(onInitSuccess : () -> Unit, onInitFail : (String) -> Unit) {
+        if (!isGazeRecorderInitialized) {
+            fun onSuccess() {
+                isGazeRecorderInitialized = true
+                onInitSuccess()
+            }
+
+            fun onFail(error : String) {
+                gazeRecorder = null
+                onInitFail(error)
+            }
+
+            gazeRecorder = SeeSoGazeRecorder(applicationContext, ::onSuccess, ::onFail)
+        }
     }
 
-    private fun onRecorderInitFail(error : String) {
+    fun initAudioRecorder() {
+        audioRecorder = MediaRecorder()
+        audioRecorder.setAudioSource(MediaRecorder.AudioSource.DEFAULT)
+        audioRecorder.setOutputFormat(MediaRecorder.OutputFormat.THREE_GPP)
+        audioRecorder.setAudioEncoder(MediaRecorder.AudioEncoder.AMR_NB)
+        audioRecorder.setOutputFile(audioFilePath)
+        audioRecorder.prepare()
     }
 }

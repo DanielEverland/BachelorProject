@@ -7,6 +7,7 @@ import android.content.pm.PackageManager
 import android.os.Bundle
 import android.widget.Button
 import android.widget.TextView
+import androidx.appcompat.app.AlertDialog
 import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
 
@@ -15,7 +16,9 @@ class MainActivity : AppCompatActivity() {
     private val preferences get() = concussionApplication.getPreferences(this)
     private val hasBaseline get() = !preferences.getFloat("Baseline", Float.NaN).isNaN()
 
-    private val permissions = arrayOf(Manifest.permission.CAMERA)
+    private val permissions = arrayOf(
+        Manifest.permission.CAMERA,
+        Manifest.permission.RECORD_AUDIO)
     private val permissionRequestCode = 1000
 
     private lateinit var postInjuryTestFragment : FrontPageTestButtonFragment
@@ -49,13 +52,16 @@ class MainActivity : AppCompatActivity() {
             requestPermissions(permissions, permissionRequestCode)
         }
         else {
-            onPermissionGranted(true)
+            onCameraAndAudioPermissionGranted(true, true)
         }
     }
 
-    private fun onPermissionGranted(isGranted : Boolean) {
-        if (isGranted) {
-                (application as ConcussionApplication).initGazeRecorder(::enableTestButtons)
+    private fun onCameraAndAudioPermissionGranted(cameraIsGranted : Boolean, audioIsGranted : Boolean) {
+        if (cameraIsGranted && audioIsGranted) {
+            concussionApplication.initGazeRecorder(::enableTestButtons, ::onGazeRecorderInitFail)
+        }
+        else if (audioIsGranted) {
+            enableTestButtons()
         }
     }
 
@@ -63,6 +69,21 @@ class MainActivity : AppCompatActivity() {
         runOnUiThread {
             postInjuryTestFragment.enableTestButton(true)
             baselineTestFragment.enableTestButton(true)
+        }
+    }
+
+    private fun onGazeRecorderInitFail(error : String) {
+        val alertDialogBuilder = AlertDialog.Builder(this)
+        alertDialogBuilder.setTitle("Failed to initialize gaze recorder")
+        alertDialogBuilder.setMessage(error)
+        alertDialogBuilder.setPositiveButton("Retry initialization") { _, _ ->
+            concussionApplication.initGazeRecorder(::enableTestButtons, ::onGazeRecorderInitFail)
+        }
+        alertDialogBuilder.setNegativeButton("Continue without gaze tracking") {_, _ ->
+            enableTestButtons()
+        }
+        runOnUiThread {
+            alertDialogBuilder.show()
         }
     }
 
@@ -85,11 +106,12 @@ class MainActivity : AppCompatActivity() {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults)
         when (requestCode) {
             permissionRequestCode -> if (grantResults.size > 0) {
-                val cameraPermissionAccepted = grantResults[0] == PackageManager.PERMISSION_GRANTED
-                if (cameraPermissionAccepted) {
-                    onPermissionGranted(true)
-                } else {
-                    onPermissionGranted(false)
+                val cameraPermissionIndex = permissions.indexOf(Manifest.permission.CAMERA)
+                val audioPermissionIndex = permissions.indexOf(Manifest.permission.RECORD_AUDIO)
+                if (cameraPermissionIndex != -1 && audioPermissionIndex != -1) {
+                    val cameraPermissionGranted = grantResults[cameraPermissionIndex] == PackageManager.PERMISSION_GRANTED
+                    val audioPermissionGranted = grantResults[audioPermissionIndex] == PackageManager.PERMISSION_GRANTED
+                    onCameraAndAudioPermissionGranted(cameraPermissionGranted, audioPermissionGranted)
                 }
             }
         }
