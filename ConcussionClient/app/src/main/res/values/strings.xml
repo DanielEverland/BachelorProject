@@ -10,6 +10,21 @@
         Once the test begins, read each number on the card\n
         from left to right, top to bottom.\n
         Read the numbers out loud, as fast as you can.\n
+        Tap \"Continue\" once finished.\n
+        \n
+        Tap anywhere on the screen to begin the test
+    </string>
+    <string name="test_popup_text">
+        The next three cards will be scored.\n
+        You can review your performance between each card.\n
+        \n
+        The device records your gaze during the test, so\n
+        please hold the phone at half an arm\'s length so\n
+        your eyes are visible to the front-facing camera.\n
+        \n
+        Once the test begins, read each number on the card\n
+        like you did on the demonstration card.\n
+        Tap \"Continue\" once finished.\n
         \n
         Tap anywhere on the screen to begin the test
     </string>
