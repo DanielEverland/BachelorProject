@@ -19,7 +19,7 @@ class SeeSoGazeRecorder(
     private val initFailCallback : (String) -> (Unit)
 ) {
     // License info.
-    private val licenseKey = "dev_wj3ftrbfhqu5z36wxvr0lm6q9az8ekihttnj7yi3"
+    private val licenseKey = "dev_ny2wjyiekw3tgv8ojr5k0r4034tuksamith6su68"
 
     // Device info.
     private val modelName = "SM-S908B/DS"
