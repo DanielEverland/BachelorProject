@@ -152,7 +152,7 @@ open class FlashcardFragment : Fragment() {
     }
 
     private fun createNewTextView(numberIndex: Int): TextView {
-        val newNumber = randomGenerator!!.nextInt(1, 10)
+        val newNumber = randomGenerator!!.nextInt(0, 10)
 
         val newView = TextView(activity)
         newView.text = newNumber.toString()
